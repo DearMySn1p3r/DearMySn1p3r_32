@@ -146,12 +146,21 @@ header .right b{color:#fff;font-weight:700;}
 /* photo */
 .photo-frame{
   width:100%;border:1px solid var(--dimmer);
-  background:#000;background-size:cover;background-position:center;
-  background-repeat:no-repeat;
+  background:#000;
   position:relative;overflow:hidden;
   padding-bottom:100%;height:0;
+  touch-action:none;
 }
+.photo-frame.has-photo{cursor:grab;}
+.photo-frame.dragging{cursor:grabbing;}
 .photo-frame > *{position:absolute;}
+.photo-bg{
+  inset:0;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  transform-origin:center center;
+  will-change:transform;
+  user-select:none;-webkit-user-drag:none;
+}
 .photo-frame .empty{
   inset:0;display:flex;align-items:center;justify-content:center;
   color:var(--dim);
@@ -159,6 +168,7 @@ header .right b{color:#fff;font-weight:700;}
 .photo-frame .empty svg{opacity:0.3;}
 .photo-frame .ph-corner{
   position:absolute;width:12px;height:12px;border:1px solid var(--ink);z-index:2;
+  pointer-events:none;
 }
 .photo-frame .ph-corner.tl{top:6px;left:6px;border-right:none;border-bottom:none;}
 .photo-frame .ph-corner.tr{top:6px;right:6px;border-left:none;border-bottom:none;}
@@ -398,6 +408,25 @@ header .right b{color:#fff;font-weight:700;}
 .file-up:hover{background:rgba(255,255,255,0.06);border-color:#fff;}
 .file-up.has-file{border-style:solid;border-color:#fff;background:rgba(255,255,255,0.04);}
 .file-up input{display:none;}
+
+/* photo adjust panel */
+.photo-adj{
+  margin-top:10px;padding:12px;border:1px solid var(--dimmer);
+  background:rgba(255,255,255,0.02);
+  display:none;
+}
+.photo-adj.show{display:block;}
+.photo-adj .hint{
+  font-size:9px;color:var(--dim);letter-spacing:1px;
+  margin-top:8px;text-align:center;font-family:var(--kr);
+  line-height:1.5;
+}
+.photo-adj .reset-btn{
+  width:100%;padding:7px;background:transparent;border:1px solid var(--dimmer);
+  color:var(--dim);font-family:inherit;font-size:9px;letter-spacing:2px;
+  font-weight:700;cursor:none;transition:0.2s;margin-top:8px;
+}
+.photo-adj .reset-btn:hover{color:#fff;border-color:#fff;}
 
 /* slider */
 .slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
@@ -655,6 +684,15 @@ header .right b{color:#fff;font-weight:700;}
           <input type="file" accept="image/*" data-target="A">
           <span>▲ UPLOAD_VISUAL</span>
         </label>
+        <div class="photo-adj" id="photo-adj-A">
+          <div class="slider-row" style="margin-bottom:0;">
+            <div class="sl-lbl">확대</div>
+            <input type="range" id="zoom-A" min="0.5" max="3" step="0.01" value="1">
+            <div class="sl-val" id="zoom-val-A">1.0×</div>
+          </div>
+          <button class="reset-btn" onclick="resetPhotoTransform('A')">⟲ RESET_POSITION</button>
+          <div class="hint">사진을 드래그해서 이동 · 휠/슬라이더로 확대</div>
+        </div>
       </div>
       <div class="field">
         <label>CODENAME</label>
@@ -700,6 +738,15 @@ header .right b{color:#fff;font-weight:700;}
           <input type="file" accept="image/*" data-target="B">
           <span>▲ UPLOAD_VISUAL</span>
         </label>
+        <div class="photo-adj" id="photo-adj-B">
+          <div class="slider-row" style="margin-bottom:0;">
+            <div class="sl-lbl">확대</div>
+            <input type="range" id="zoom-B" min="0.5" max="3" step="0.01" value="1">
+            <div class="sl-val" id="zoom-val-B">1.0×</div>
+          </div>
+          <button class="reset-btn" onclick="resetPhotoTransform('B')">⟲ RESET_POSITION</button>
+          <div class="hint">사진을 드래그해서 이동 · 휠/슬라이더로 확대</div>
+        </div>
       </div>
       <div class="field">
         <label>CODENAME</label>
@@ -828,8 +875,10 @@ const CODE_DEFAULTS = {
 function defaultState(){
   return {
     A:{name:'',code:'',grade:'A',role:'센티넬',element:'fire',note:'',photo:null,
+       photoTransform:{x:0,y:0,scale:1},
        stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
     B:{name:'',code:'',grade:'A',role:'가이드',element:'water',note:'',photo:null,
+       photoTransform:{x:0,y:0,scale:1},
        stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
     R:{dossier:'',sync:92,addict:55,imprint:'발현 임박',code:'RED',
        codeDesc:CODE_DEFAULTS.RED,relation:''}
@@ -921,6 +970,7 @@ function init(){
       const reader = new FileReader();
       reader.onload = ev=>{
         state[t].photo = ev.target.result;
+        state[t].photoTransform = {x:0,y:0,scale:1};
         renderPhoto(t);
         document.getElementById('file-up-'+t).classList.add('has-file');
         document.querySelector(`#file-up-${t} span`).innerText = '✓ REPLACE_VISUAL';
@@ -959,11 +1009,18 @@ function init(){
     };
   });
 
+  // photo interaction (drag + zoom)
+  ['A','B'].forEach(t=>setupPhotoInteraction(t));
+
   // load saved
   try{
     const saved = localStorage.getItem('arch_resonance_nexus');
     if(saved){
       state = JSON.parse(saved);
+      // migration: ensure photoTransform exists on old saves
+      ['A','B'].forEach(t=>{
+        if(!state[t].photoTransform) state[t].photoTransform = {x:0,y:0,scale:1};
+      });
       applyState();
       notify('AUTOSAVE_RESTORED');
     }else{
@@ -1037,14 +1094,22 @@ function renderTags(t){
 
 function renderPhoto(t){
   const frame = document.getElementById('photo-'+t);
+  const adj = document.getElementById('photo-adj-'+t);
+  const tr = state[t].photoTransform || {x:0,y:0,scale:1};
   if(state[t].photo){
-    frame.style.backgroundImage = `url("${state[t].photo}")`;
+    frame.classList.add('has-photo');
     frame.innerHTML = `
+      <div class="photo-bg" style="background-image:url('${state[t].photo}');transform:translate(${tr.x}px,${tr.y}px) scale(${tr.scale});"></div>
       <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
       <div class="ph-corner bl"></div><div class="ph-corner br"></div>
       <div class="scan-overlay"></div>
     `;
+    if(adj) adj.classList.add('show');
+    // sync zoom slider
+    const zs = document.getElementById('zoom-'+t);
+    if(zs){ zs.value = tr.scale; document.getElementById('zoom-val-'+t).innerText = tr.scale.toFixed(2)+'×'; }
   }else{
+    frame.classList.remove('has-photo');
     frame.style.backgroundImage = '';
     frame.innerHTML = `
       <div class="empty">
@@ -1057,6 +1122,125 @@ function renderPhoto(t){
       <div class="ph-corner bl"></div><div class="ph-corner br"></div>
       <div class="scan-overlay"></div>
     `;
+    if(adj) adj.classList.remove('show');
+  }
+}
+
+function updatePhotoTransform(t){
+  const frame = document.getElementById('photo-'+t);
+  const bg = frame.querySelector('.photo-bg');
+  if(!bg) return;
+  const tr = state[t].photoTransform;
+  bg.style.transform = `translate(${tr.x}px,${tr.y}px) scale(${tr.scale})`;
+}
+
+function resetPhotoTransform(t){
+  state[t].photoTransform = {x:0,y:0,scale:1};
+  updatePhotoTransform(t);
+  const zs = document.getElementById('zoom-'+t);
+  if(zs){ zs.value = 1; document.getElementById('zoom-val-'+t).innerText = '1.00×'; }
+  save();
+  notify('POSITION_RESET_'+t);
+}
+
+function setupPhotoInteraction(t){
+  const frame = document.getElementById('photo-'+t);
+  let dragging = false;
+  let lastX=0, lastY=0;
+  // pinch zoom
+  let pinching = false;
+  let pinchStartDist = 0, pinchStartScale = 1;
+
+  const pointFromEvent = (e)=>{
+    if(e.touches && e.touches.length){
+      return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+    }
+    return {x:e.clientX, y:e.clientY};
+  };
+  const getDistance = (touches)=>{
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  };
+
+  const onDown = (e)=>{
+    if(!state[t].photo) return;
+    if(e.touches && e.touches.length === 2){
+      pinching = true;
+      pinchStartDist = getDistance(e.touches);
+      pinchStartScale = state[t].photoTransform.scale;
+      e.preventDefault();
+      return;
+    }
+    dragging = true;
+    const p = pointFromEvent(e);
+    lastX = p.x; lastY = p.y;
+    frame.classList.add('dragging');
+    e.preventDefault();
+  };
+
+  const onMove = (e)=>{
+    if(pinching && e.touches && e.touches.length === 2){
+      const newDist = getDistance(e.touches);
+      const factor = newDist / pinchStartDist;
+      const newScale = Math.max(0.5, Math.min(3, pinchStartScale * factor));
+      state[t].photoTransform.scale = newScale;
+      updatePhotoTransform(t);
+      const zs = document.getElementById('zoom-'+t);
+      if(zs){ zs.value = newScale; document.getElementById('zoom-val-'+t).innerText = newScale.toFixed(2)+'×'; }
+      e.preventDefault();
+      return;
+    }
+    if(!dragging) return;
+    const p = pointFromEvent(e);
+    const dx = p.x - lastX;
+    const dy = p.y - lastY;
+    lastX = p.x; lastY = p.y;
+    state[t].photoTransform.x += dx;
+    state[t].photoTransform.y += dy;
+    updatePhotoTransform(t);
+    e.preventDefault();
+  };
+
+  const onUp = ()=>{
+    if(dragging || pinching){ save(); }
+    dragging = false;
+    pinching = false;
+    frame.classList.remove('dragging');
+  };
+
+  const onWheel = (e)=>{
+    if(!state[t].photo) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.06 : 0.06;
+    const newScale = Math.max(0.5, Math.min(3, state[t].photoTransform.scale + delta));
+    state[t].photoTransform.scale = newScale;
+    updatePhotoTransform(t);
+    const zs = document.getElementById('zoom-'+t);
+    if(zs){ zs.value = newScale; document.getElementById('zoom-val-'+t).innerText = newScale.toFixed(2)+'×'; }
+    clearTimeout(window['_zsave_'+t]);
+    window['_zsave_'+t] = setTimeout(save, 400);
+  };
+
+  frame.addEventListener('mousedown', onDown);
+  frame.addEventListener('touchstart', onDown, {passive:false});
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+  document.addEventListener('touchcancel', onUp);
+  frame.addEventListener('wheel', onWheel, {passive:false});
+
+  // zoom slider
+  const zs = document.getElementById('zoom-'+t);
+  if(zs){
+    zs.oninput = ()=>{
+      state[t].photoTransform.scale = +zs.value;
+      document.getElementById('zoom-val-'+t).innerText = (+zs.value).toFixed(2)+'×';
+      updatePhotoTransform(t);
+      clearTimeout(window['_zsave_'+t]);
+      window['_zsave_'+t] = setTimeout(save, 400);
+    };
   }
 }
 
