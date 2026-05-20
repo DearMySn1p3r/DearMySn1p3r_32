@@ -201,11 +201,11 @@ header .right b{color:#fff;font-weight:700;}
 .idblock .codeline b:empty::before{content:'—';color:var(--dimmer);}
 .tags{display:flex;flex-wrap:wrap;gap:6px;}
 .tag{
-  padding:4px 10px;font-size:9px;letter-spacing:2px;
+  height:20px;padding:0 10px;font-size:9px;letter-spacing:2px;
   border:1px solid var(--ink);color:#fff;font-weight:700;
   background:rgba(255,255,255,0.04);
   display:inline-flex;align-items:center;justify-content:center;
-  line-height:1;
+  line-height:20px;box-sizing:border-box;
 }
 .tag.solid{background:#fff;color:#000;}
 .tag.elem{gap:5px;}
@@ -1377,6 +1377,12 @@ function downloadImage(){
   `;
   document.head.appendChild(forceStyle);
 
+  // photo-img will-change 임시 해제 (html2canvas 컴포지팅 레이어 렌더링 버그 방지)
+  target.querySelectorAll('.photo-img').forEach(img=>{
+    img.dataset._wc = img.style.willChange || '';
+    img.style.willChange = 'auto';
+  });
+
   // 강제 reflow + photo-frame 실측 후 픽셀로 고정 (html2canvas aspect-ratio 호환)
   void target.offsetHeight;
   target.querySelectorAll('.photo-frame').forEach(f=>{
@@ -1401,6 +1407,11 @@ function downloadImage(){
       });
       // 라이브 frame 크기로 transform 재계산
       ['A','B'].forEach(t=>{ if(state[t].photo) updatePhotoTransform(t); });
+      // will-change 복원
+      target.querySelectorAll('.photo-img').forEach(img=>{
+        img.style.willChange = img.dataset._wc || '';
+        delete img.dataset._wc;
+      });
     };
     html2canvas(target, {
       backgroundColor:'#0f0f0f',
