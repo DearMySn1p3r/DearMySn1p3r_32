@@ -154,14 +154,16 @@ header .right b{color:#fff;font-weight:700;}
 .photo-frame.has-photo{cursor:grab;}
 .photo-frame.dragging{cursor:grabbing;}
 .photo-frame > *{position:absolute;}
-.photo-bg{
-  top:0;left:0;
-  width:100%;height:100%;
-  background-size:cover;background-position:center;background-repeat:no-repeat;
+.photo-img{
+  top:50%;left:50%;
   transform-origin:center center;
   will-change:transform;
   user-select:none;-webkit-user-drag:none;
+  pointer-events:none;display:block;
+  max-width:none;max-height:none;
 }
+.photo-img.fit-h{height:100%;width:auto;}
+.photo-img.fit-w{width:100%;height:auto;}
 .photo-frame .empty{
   inset:0;display:flex;align-items:center;justify-content:center;
   color:var(--dim);
@@ -876,10 +878,10 @@ const CODE_DEFAULTS = {
 function defaultState(){
   return {
     A:{name:'',code:'',grade:'A',role:'센티넬',element:'fire',note:'',photo:null,
-       photoTransform:{x:0,y:0,scale:1},
+       photoTransform:{xR:0,yR:0,scale:1},
        stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
     B:{name:'',code:'',grade:'A',role:'가이드',element:'water',note:'',photo:null,
-       photoTransform:{x:0,y:0,scale:1},
+       photoTransform:{xR:0,yR:0,scale:1},
        stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
     R:{dossier:'',sync:92,addict:55,imprint:'발현 임박',code:'RED',
        codeDesc:CODE_DEFAULTS.RED,relation:''}
@@ -971,7 +973,7 @@ function init(){
       const reader = new FileReader();
       reader.onload = ev=>{
         state[t].photo = ev.target.result;
-        state[t].photoTransform = {x:0,y:0,scale:1};
+        state[t].photoTransform = {xR:0,yR:0,scale:1};
         renderPhoto(t);
         document.getElementById('file-up-'+t).classList.add('has-file');
         document.querySelector(`#file-up-${t} span`).innerText = '✓ REPLACE_VISUAL';
@@ -1018,9 +1020,13 @@ function init(){
     const saved = localStorage.getItem('arch_resonance_nexus');
     if(saved){
       state = JSON.parse(saved);
-      // migration: ensure photoTransform exists on old saves
+      // migration: ensure photoTransform exists with ratio-based format
       ['A','B'].forEach(t=>{
-        if(!state[t].photoTransform) state[t].photoTransform = {x:0,y:0,scale:1};
+        const pt = state[t].photoTransform;
+        if(!pt || pt.xR === undefined){
+          // 이전 픽셀 좌표 포맷이거나 없음 → 리셋
+          state[t].photoTransform = {xR:0,yR:0,scale:(pt && pt.scale) || 1};
+        }
       });
       applyState();
       notify('AUTOSAVE_RESTORED');
@@ -1096,22 +1102,32 @@ function renderTags(t){
 function renderPhoto(t){
   const frame = document.getElementById('photo-'+t);
   const adj = document.getElementById('photo-adj-'+t);
-  const tr = state[t].photoTransform || {x:0,y:0,scale:1};
+  const tr = state[t].photoTransform || {xR:0,yR:0,scale:1};
   if(state[t].photo){
     frame.classList.add('has-photo');
     frame.innerHTML = `
-      <div class="photo-bg" style="background-image:url('${state[t].photo}');transform:translate(${tr.x}px,${tr.y}px) scale(${tr.scale});"></div>
+      <img class="photo-img" src="${state[t].photo}" alt="" draggable="false">
       <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
       <div class="ph-corner bl"></div><div class="ph-corner br"></div>
       <div class="scan-overlay"></div>
     `;
+    const img = frame.querySelector('.photo-img');
+    const applyFit = ()=>{
+      // 자연 비율 유지: 가로형(W>=H)은 세로를 frame에 맞춤 → 가로 overflow
+      //                 세로형(W<H)은 가로를 frame에 맞춤 → 세로 overflow
+      img.classList.add(img.naturalWidth >= img.naturalHeight ? 'fit-h' : 'fit-w');
+      updatePhotoTransform(t);
+    };
+    if(img.complete && img.naturalWidth > 0){
+      applyFit();
+    }else{
+      img.onload = applyFit;
+    }
     if(adj) adj.classList.add('show');
-    // sync zoom slider
     const zs = document.getElementById('zoom-'+t);
     if(zs){ zs.value = tr.scale; document.getElementById('zoom-val-'+t).innerText = tr.scale.toFixed(2)+'×'; }
   }else{
     frame.classList.remove('has-photo');
-    frame.style.backgroundImage = '';
     frame.innerHTML = `
       <div class="empty">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
@@ -1129,14 +1145,18 @@ function renderPhoto(t){
 
 function updatePhotoTransform(t){
   const frame = document.getElementById('photo-'+t);
-  const bg = frame.querySelector('.photo-bg');
-  if(!bg) return;
+  const img = frame.querySelector('.photo-img');
+  if(!img) return;
   const tr = state[t].photoTransform;
-  bg.style.transform = `translate(${tr.x}px,${tr.y}px) scale(${tr.scale})`;
+  const w = frame.offsetWidth || 1;
+  const h = frame.offsetHeight || 1;
+  const px = (tr.xR||0) * w;
+  const py = (tr.yR||0) * h;
+  img.style.transform = `translate(-50%,-50%) translate(${px}px,${py}px) scale(${tr.scale})`;
 }
 
 function resetPhotoTransform(t){
-  state[t].photoTransform = {x:0,y:0,scale:1};
+  state[t].photoTransform = {xR:0,yR:0,scale:1};
   updatePhotoTransform(t);
   const zs = document.getElementById('zoom-'+t);
   if(zs){ zs.value = 1; document.getElementById('zoom-val-'+t).innerText = '1.00×'; }
@@ -1197,8 +1217,10 @@ function setupPhotoInteraction(t){
     const dx = p.x - lastX;
     const dy = p.y - lastY;
     lastX = p.x; lastY = p.y;
-    state[t].photoTransform.x += dx;
-    state[t].photoTransform.y += dy;
+    const w = frame.offsetWidth || 1;
+    const h = frame.offsetHeight || 1;
+    state[t].photoTransform.xR = (state[t].photoTransform.xR || 0) + dx / w;
+    state[t].photoTransform.yR = (state[t].photoTransform.yR || 0) + dy / h;
     updatePhotoTransform(t);
     e.preventDefault();
   };
@@ -1317,6 +1339,15 @@ setInterval(()=>{
   document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
 },1000);
 
+// 창 크기 변경 시 photo transform 재계산 (ratio 기반)
+let _resizeT;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_resizeT);
+  _resizeT = setTimeout(()=>{
+    ['A','B'].forEach(t=>{ if(state[t] && state[t].photo) updatePhotoTransform(t); });
+  }, 100);
+});
+
 /* ========= ACTIONS ========= */
 function save(){
   try{localStorage.setItem('arch_resonance_nexus', JSON.stringify(state));}catch(e){}
@@ -1353,9 +1384,10 @@ function downloadImage(){
     f.style.height = w + 'px';
     f.style.aspectRatio = 'auto';
   });
-
-  // 강제 reflow
   void target.offsetHeight;
+
+  // 새 frame 크기에 맞춰 photo transform 재계산 (ratio 기반이라 자동 적용됨)
+  ['A','B'].forEach(t=>{ if(state[t].photo) updatePhotoTransform(t); });
 
   setTimeout(()=>{
     const restoreFrames = ()=>{
@@ -1365,6 +1397,8 @@ function downloadImage(){
         delete f.dataset._h;
         delete f.dataset._ar;
       });
+      // 라이브 frame 크기로 transform 재계산
+      ['A','B'].forEach(t=>{ if(state[t].photo) updatePhotoTransform(t); });
     };
     html2canvas(target, {
       backgroundColor:'#0f0f0f',
