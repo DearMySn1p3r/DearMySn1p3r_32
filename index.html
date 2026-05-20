@@ -176,4 +176,1310 @@ header .right b{color:#fff;font-weight:700;}
 .photo-frame .ph-corner.tl{top:6px;left:6px;border-right:none;border-bottom:none;}
 .photo-frame .ph-corner.tr{top:6px;right:6px;border-left:none;border-bottom:none;}
 .photo-frame .ph-corner.bl{bottom:6px;left:6px;border-right:none;border-top:none;}
-.photo-frame .
+.photo-frame .ph-corner.br{bottom:6px;right:6px;border-left:none;border-top:none;}
+.photo-frame .scan-overlay{
+  position:absolute;inset:0;pointer-events:none;z-index:1;opacity:0.5;
+  background:linear-gradient(rgba(0,0,0,0) 50%,rgba(255,255,255,0.03) 50%);
+  background-size:100% 4px;
+}
+
+/* identity */
+.idblock{display:flex;flex-direction:column;gap:8px;}
+.idblock .codename{
+  font-size:30px;font-weight:900;letter-spacing:4px;line-height:1;
+  text-shadow:0 0 14px rgba(255,255,255,0.6);
+  min-height:30px;word-break:break-all;
+}
+.idblock .codename:empty::before{content:'—';color:var(--dimmer);}
+.idblock .codeline{
+  font-family:monospace;font-size:10px;color:var(--dim);
+  display:flex;justify-content:space-between;
+  padding-top:8px;border-top:1px solid var(--dimmer);
+  letter-spacing:2px;
+}
+.idblock .codeline b{color:#fff;}
+.idblock .codeline b:empty::before{content:'—';color:var(--dimmer);}
+.tags{display:flex;flex-wrap:wrap;gap:6px;}
+.tag{
+  height:20px;padding:0 10px;font-size:9px;letter-spacing:2px;
+  border:1px solid var(--ink);color:#fff;font-weight:700;
+  background:rgba(255,255,255,0.04);
+  display:inline-flex;align-items:center;justify-content:center;
+  line-height:20px;box-sizing:border-box;
+}
+.tag.solid{background:#fff;color:#000;}
+.tag.elem{gap:5px;}
+
+/* ========= STATS ========= */
+.stat-section{
+  border-top:1px solid var(--dimmer);padding-top:18px;
+}
+.stat-label-row{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:14px;
+}
+.stat-label-row .tot{
+  color:#fff;font-weight:900;font-size:11px;
+  font-family:monospace;letter-spacing:1px;
+}
+.eq-container{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:6px;height:130px;
+}
+.eq-col{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+.eq-bar-wrap{
+  width:100%;flex:1;border:1px solid var(--dimmer);
+  background:rgba(255,255,255,0.02);position:relative;overflow:hidden;
+  display:flex;flex-direction:column-reverse;
+}
+.eq-fill{
+  width:100%;background:#fff;
+  box-shadow:0 0 8px rgba(255,255,255,0.5);
+  transition:height 0.8s cubic-bezier(.2,1,.3,1);
+}
+.eq-bar-wrap::before{
+  content:'';position:absolute;left:0;right:0;top:33%;height:1px;
+  background:rgba(255,255,255,0.06);
+}
+.eq-bar-wrap::after{
+  content:'';position:absolute;left:0;right:0;top:66%;height:1px;
+  background:rgba(255,255,255,0.06);
+}
+.eq-col .val{
+  font-family:monospace;font-size:10px;font-weight:700;color:#fff;
+}
+.eq-col .lbl{
+  font-size:8px;color:var(--dim);font-family:var(--kr);
+  letter-spacing:0.5px;
+}
+
+/* status note */
+.status-note{
+  border:1px solid var(--dimmer);background:rgba(255,255,255,0.015);
+  padding:14px;font-family:var(--kr);font-size:11px;line-height:1.7;
+  color:#ccc;min-height:70px;letter-spacing:0.3px;
+  position:relative;white-space:pre-wrap;word-break:keep-all;
+}
+.status-note::before{
+  content:'STATUS_LOG';position:absolute;top:-7px;left:10px;background:var(--panel);
+  padding:0 6px;font-size:8px;letter-spacing:2px;color:var(--dim);font-family:var(--font);
+}
+
+/* ========= SYNC PANEL ========= */
+.sync-panel{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.sync-panel .panel-tag{
+  font-size:9px;letter-spacing:4px;color:var(--dim);
+  padding-bottom:8px;border-bottom:1px solid var(--dimmer);width:100%;text-align:center;
+}
+
+.sync-dial{
+  width:200px;height:200px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.sync-dial .ring-outer{
+  position:absolute;inset:0;border:1px dashed rgba(255,255,255,0.22);
+  border-radius:50%;animation:spin 30s linear infinite;
+}
+.sync-dial .ring-mid{
+  position:absolute;inset:14px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.1);
+  border-top:1.5px solid #fff;
+  animation:spin 18s linear infinite reverse;
+}
+.sync-dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+.sync-dial .sync-track{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:5;}
+.sync-dial .sync-prog{
+  fill:none;stroke:#fff;stroke-width:5;stroke-linecap:butt;
+  filter:drop-shadow(0 0 6px #fff);
+  transition:stroke-dashoffset 1.2s cubic-bezier(.2,1,.3,1);
+}
+.sync-center{position:relative;z-index:2;text-align:center;}
+.sync-center .num{
+  font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px;
+  text-shadow:0 0 16px #fff;
+}
+.sync-center .pct{font-size:14px;color:var(--dim);font-weight:300;margin-left:2px;}
+.sync-center .label{
+  font-size:8px;letter-spacing:3px;color:var(--dim);margin-top:8px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* sync meta */
+.sync-meta{width:100%;display:flex;flex-direction:column;gap:6px;}
+.sync-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 12px;border:1px solid var(--dimmer);
+  font-size:9px;letter-spacing:1px;
+}
+.sync-row .k{color:var(--dim);}
+.sync-row .v{color:#fff;font-weight:700;text-shadow:0 0 4px rgba(255,255,255,0.4);}
+
+/* code level */
+.code-level{
+  width:100%;text-align:center;padding:14px 12px;
+  border:1.5px solid var(--ink);background:rgba(255,255,255,0.03);
+}
+.code-level .lbl{font-size:9px;letter-spacing:4px;color:var(--dim);}
+.code-level .val{
+  font-size:22px;font-weight:900;letter-spacing:6px;margin-top:6px;
+  text-shadow:0 0 12px #fff;
+}
+.code-level .desc{
+  font-family:var(--kr);font-size:10px;color:#bbb;margin-top:8px;line-height:1.6;
+  letter-spacing:0.3px;min-height:1em;word-break:keep-all;
+}
+
+/* relation */
+.relation-tag{
+  width:100%;border:1px solid var(--dimmer);padding:12px;
+  font-family:var(--kr);font-size:10px;color:#aaa;line-height:1.7;
+  background:rgba(0,0,0,0.3);min-height:60px;
+  white-space:pre-wrap;word-break:keep-all;
+}
+.relation-tag .hd{
+  font-family:var(--font);font-size:8px;letter-spacing:3px;
+  color:var(--ink);margin-bottom:6px;
+}
+
+/* capture footer */
+.cap-ft{
+  margin-top:28px;padding-top:14px;border-top:1px solid var(--dimmer);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:monospace;font-size:9px;color:var(--dim);letter-spacing:2px;
+}
+
+/* ========= EDIT PANEL ========= */
+#edit-panel{
+  background:var(--panel);border:1px solid var(--dimmer);
+  padding:24px;height:fit-content;
+  position:sticky;top:20px;
+  max-height:calc(100vh - 100px);overflow-y:auto;
+}
+#edit-panel .ep-head{
+  padding-bottom:14px;border-bottom:1px solid var(--ink);margin-bottom:20px;
+  font-size:12px;font-weight:900;letter-spacing:4px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#edit-panel .ep-head .pulse{
+  width:8px;height:8px;background:#fff;border-radius:50%;
+  box-shadow:0 0 10px #fff;animation:pulseDot 1.5s infinite;
+}
+@keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* tabs */
+.tabs{display:flex;margin-bottom:20px;border:1px solid var(--dimmer);}
+.tab{
+  flex:1;padding:10px 4px;text-align:center;
+  font-size:10px;letter-spacing:2px;color:var(--dim);font-weight:700;
+  transition:0.2s;border-right:1px solid var(--dimmer);
+}
+.tab:last-child{border-right:none;}
+.tab:hover{color:#fff;}
+.tab.active{background:#fff;color:#000;}
+
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* fields */
+.field{margin-bottom:16px;}
+.field label{
+  display:block;font-size:9px;letter-spacing:2.5px;color:var(--dim);
+  margin-bottom:6px;font-weight:700;
+}
+.field input[type="text"],.field select,.field textarea{
+  width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--dimmer);
+  color:#fff;padding:10px;font-family:inherit;font-size:11px;
+  letter-spacing:1px;transition:0.2s;
+}
+.field textarea{
+  font-family:var(--kr);min-height:70px;resize:vertical;line-height:1.6;
+  letter-spacing:0.3px;
+}
+.field input[type="text"]:focus,.field select:focus,.field textarea:focus{
+  border-color:#fff;box-shadow:0 0 10px rgba(255,255,255,0.2);
+}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* file upload */
+.file-up{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border:1px dashed var(--dimmer);padding:14px;
+  font-size:10px;letter-spacing:2px;color:#fff;transition:0.2s;
+  background:rgba(255,255,255,0.015);cursor:none;
+}
+.file-up:hover{background:rgba(255,255,255,0.06);border-color:#fff;}
+.file-up.has-file{border-style:solid;border-color:#fff;background:rgba(255,255,255,0.04);}
+.file-up input{display:none;}
+
+/* photo adjust panel */
+.photo-adj{
+  margin-top:10px;padding:12px;border:1px solid var(--dimmer);
+  background:rgba(255,255,255,0.02);
+  display:none;
+}
+.photo-adj.show{display:block;}
+.photo-adj .hint{
+  font-size:9px;color:var(--dim);letter-spacing:1px;
+  margin-top:8px;text-align:center;font-family:var(--kr);
+  line-height:1.5;
+}
+.photo-adj .reset-btn{
+  width:100%;padding:7px;background:transparent;border:1px solid var(--dimmer);
+  color:var(--dim);font-family:inherit;font-size:9px;letter-spacing:2px;
+  font-weight:700;cursor:none;transition:0.2s;margin-top:8px;
+}
+.photo-adj .reset-btn:hover{color:#fff;border-color:#fff;}
+
+/* slider */
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.slider-row .sl-lbl{
+  width:54px;font-size:10px;color:var(--dim);font-family:var(--kr);
+}
+.slider-row input[type="range"]{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:2px;background:rgba(255,255,255,0.2);outline:none;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;background:#fff;
+  border-radius:0;cursor:none;box-shadow:0 0 6px #fff;
+}
+.slider-row input[type="range"]::-moz-range-thumb{
+  width:12px;height:12px;background:#fff;border:none;border-radius:0;
+}
+.slider-row .sl-val{
+  width:34px;text-align:right;font-family:monospace;
+  font-size:11px;color:#fff;font-weight:700;
+}
+
+/* element grid */
+.elem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.elem-opt{
+  padding:8px 4px;text-align:center;border:1px solid var(--dimmer);
+  font-size:9px;color:var(--dim);font-weight:700;transition:0.2s;
+}
+.elem-opt:hover{color:#fff;border-color:#fff;}
+.elem-opt.active{background:#fff;color:#000;border-color:#fff;}
+.elem-opt .symb{font-size:14px;display:block;margin-bottom:2px;}
+
+/* actions */
+.action-block{
+  margin-top:24px;padding-top:18px;border-top:1px solid var(--dimmer);
+  display:flex;flex-direction:column;gap:8px;
+}
+.btn{
+  padding:13px;background:transparent;color:#fff;
+  border:1px solid var(--ink);font-family:inherit;font-weight:900;
+  font-size:10px;letter-spacing:3px;cursor:none;transition:0.2s;
+  position:relative;overflow:hidden;
+}
+.btn:hover{background:#fff;color:#000;}
+.btn.primary{background:#fff;color:#000;}
+.btn.primary:hover{background:#000;color:#fff;}
+.btn::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  transition:0.5s;
+}
+.btn:hover::before{left:100%;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.btn.small{padding:9px;font-size:9px;letter-spacing:2px;}
+
+/* notif */
+#notif{
+  position:fixed;bottom:24px;right:24px;width:300px;
+  background:#fff;color:#000;padding:13px 20px;font-weight:900;
+  display:none;z-index:11000;letter-spacing:2px;font-size:10px;
+  border-left:4px solid #000;
+}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+@media(max-width:1200px){
+  #stage{grid-template-columns:1fr;}
+  #edit-panel{position:relative;top:auto;max-height:none;}
+  .cap-main{grid-template-columns:1fr;}
+}
+@media(hover:none){
+  *{cursor:auto !important;}
+  #cursor{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div class="scanline"></div>
+<div class="noise-bg"></div>
+<div id="notif">SYSTEM_MESSAGE</div>
+
+<div id="boot">
+  <img class="logo-img" src="「ARCH」 Symbol Logo White Ver.png" alt="ARCH" onerror="this.style.display='none'">
+  <div class="logo-text">ARCH</div>
+  <div class="sub">RESONANCE NEXUS // V01.0</div>
+  <div class="bar"><div></div></div>
+</div>
+
+<header>
+  <div class="left">
+    <img class="logo-img" src="「ARCH」 Symbol Logo White Ver.png" alt="ARCH" onerror="this.style.display='none'">
+    <div>
+      <h1>RESONANCE NEXUS</h1>
+      <div class="sub">BONDED PAIR ARCHIVE // V01.0</div>
+    </div>
+  </div>
+  <div class="right">
+    HARMONY_DEPT: <b>ONLINE</b><br>
+    <span id="clock">00:00:00</span> KST
+  </div>
+</header>
+
+<div id="stage">
+
+  <div id="capture-area">
+    <div class="corner-br tl"></div><div class="corner-br tr"></div>
+    <div class="corner-br bl"></div><div class="corner-br br"></div>
+
+    <div class="cap-hd">
+      <div class="title-block">
+        <div class="ttl">BONDED_DOSSIER</div>
+        <div class="sub">HARMONY DEPT // PAIR PROFILE ARCHIVE</div>
+      </div>
+      <div class="id-block">
+        DOSSIER_NO: <b id="dossier-no">—</b><br>
+        CLEARANCE: <b>RESTRICTED</b><br>
+        DATE: <b id="date">—</b>
+      </div>
+    </div>
+
+    <div class="cap-main">
+
+      <div class="char-card">
+        <div class="idx"><span>SUBJECT_A</span><span class="dot"></span></div>
+
+        <div class="photo-frame" id="photo-A">
+          <div class="empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18"/>
+              <path d="M3 17l5-5 4 4 4-4 5 5"/><circle cx="9" cy="9" r="1.5"/>
+            </svg>
+          </div>
+          <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
+          <div class="ph-corner bl"></div><div class="ph-corner br"></div>
+          <div class="scan-overlay"></div>
+        </div>
+
+        <div class="idblock">
+          <div class="codename" id="name-A"></div>
+          <div class="codeline"><span>ID</span><b id="code-A"></b></div>
+          <div class="tags" id="tags-A"></div>
+        </div>
+
+        <div class="stat-section">
+          <div class="stat-label-row">
+            <span>STAT_MATRIX</span>
+            <span>TOT <span class="tot" id="tot-A">0</span></span>
+          </div>
+          <div class="eq-container" id="eq-A"></div>
+        </div>
+
+        <div class="status-note" id="note-A"></div>
+      </div>
+
+      <div class="sync-panel">
+        <div class="panel-tag">RESONANCE_ANALYSIS</div>
+
+        <div class="sync-dial">
+          <div class="ring-outer"></div>
+          <div class="ring-mid"></div>
+          <svg viewBox="0 0 200 200">
+            <circle class="sync-track" cx="100" cy="100" r="78"/>
+            <circle class="sync-prog" id="sync-prog" cx="100" cy="100" r="78"
+                    stroke-dasharray="490" stroke-dashoffset="490"/>
+          </svg>
+          <div class="sync-center">
+            <div><span class="num" id="sync-num">0</span><span class="pct">%</span></div>
+            <div class="label">SYNC_RATE</div>
+          </div>
+        </div>
+
+        <div class="sync-meta">
+          <div class="sync-row"><span class="k">GRADE</span><span class="v" id="grade-out">—</span></div>
+          <div class="sync-row"><span class="k">IMPRINT</span><span class="v" id="imprint-out">—</span></div>
+          <div class="sync-row"><span class="k">ADDICTION</span><span class="v" id="addict-out">—</span></div>
+        </div>
+
+        <div class="code-level">
+          <div class="lbl">PROTOCOL</div>
+          <div class="val" id="code-val">RED</div>
+          <div class="desc" id="code-desc"></div>
+        </div>
+
+        <div class="relation-tag">
+          <div class="hd">> RELATION_NOTE</div>
+          <div id="relation-text"></div>
+        </div>
+      </div>
+
+      <div class="char-card">
+        <div class="idx"><span>SUBJECT_B</span><span class="dot"></span></div>
+
+        <div class="photo-frame" id="photo-B">
+          <div class="empty">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+              <rect x="3" y="3" width="18" height="18"/>
+              <path d="M3 17l5-5 4 4 4-4 5 5"/><circle cx="9" cy="9" r="1.5"/>
+            </svg>
+          </div>
+          <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
+          <div class="ph-corner bl"></div><div class="ph-corner br"></div>
+          <div class="scan-overlay"></div>
+        </div>
+
+        <div class="idblock">
+          <div class="codename" id="name-B"></div>
+          <div class="codeline"><span>ID</span><b id="code-B"></b></div>
+          <div class="tags" id="tags-B"></div>
+        </div>
+
+        <div class="stat-section">
+          <div class="stat-label-row">
+            <span>STAT_MATRIX</span>
+            <span>TOT <span class="tot" id="tot-B">0</span></span>
+          </div>
+          <div class="eq-container" id="eq-B"></div>
+        </div>
+
+        <div class="status-note" id="note-B"></div>
+      </div>
+
+    </div>
+
+    <div class="cap-ft">
+      <span>// HARMONY_DEPT.RESONANCE_NEXUS</span>
+      <span>END_OF_DOCUMENT // <span id="cap-ft-time">—</span></span>
+    </div>
+  </div>
+
+  <div id="edit-panel">
+    <div class="ep-head">
+      <span>CONTROL_PANEL</span>
+      <span class="pulse"></span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="A">SUBJECT_A</div>
+      <div class="tab" data-tab="B">SUBJECT_B</div>
+      <div class="tab" data-tab="R">RELATION</div>
+    </div>
+
+    <div class="tab-content active" id="tab-A">
+      <div class="field">
+        <label>PHOTO_DATA</label>
+        <label class="file-up" id="file-up-A">
+          <input type="file" accept="image/*" data-target="A">
+          <span>▲ UPLOAD_VISUAL</span>
+        </label>
+        <div class="photo-adj" id="photo-adj-A">
+          <div class="slider-row" style="margin-bottom:0;">
+            <div class="sl-lbl">확대</div>
+            <input type="range" id="zoom-A" min="0.5" max="3" step="0.01" value="1">
+            <div class="sl-val" id="zoom-val-A">1.0×</div>
+          </div>
+          <button class="reset-btn" onclick="resetPhotoTransform('A')">⟲ RESET_POSITION</button>
+          <div class="hint">사진을 드래그해서 이동 · 휠/슬라이더로 확대</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>CODENAME</label>
+        <input type="text" data-target="A" data-field="name">
+      </div>
+      <div class="field">
+        <label>ID_CODE</label>
+        <input type="text" data-target="A" data-field="code">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>GRADE</label>
+          <select data-target="A" data-field="grade">
+            <option>SS</option><option>S</option><option selected>A</option><option>B</option><option>C</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ROLE</label>
+          <select data-target="A" data-field="role">
+            <option value="센티넬">SENTINEL</option>
+            <option value="가이드">GUIDE</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>ELEMENT</label>
+        <div class="elem-grid" data-target="A" data-field="element"></div>
+      </div>
+      <div class="field">
+        <label>STAT_MATRIX</label>
+        <div class="slider-grp" data-target="A"></div>
+      </div>
+      <div class="field">
+        <label>STATUS_LOG</label>
+        <textarea data-target="A" data-field="note"></textarea>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-B">
+      <div class="field">
+        <label>PHOTO_DATA</label>
+        <label class="file-up" id="file-up-B">
+          <input type="file" accept="image/*" data-target="B">
+          <span>▲ UPLOAD_VISUAL</span>
+        </label>
+        <div class="photo-adj" id="photo-adj-B">
+          <div class="slider-row" style="margin-bottom:0;">
+            <div class="sl-lbl">확대</div>
+            <input type="range" id="zoom-B" min="0.5" max="3" step="0.01" value="1">
+            <div class="sl-val" id="zoom-val-B">1.0×</div>
+          </div>
+          <button class="reset-btn" onclick="resetPhotoTransform('B')">⟲ RESET_POSITION</button>
+          <div class="hint">사진을 드래그해서 이동 · 휠/슬라이더로 확대</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>CODENAME</label>
+        <input type="text" data-target="B" data-field="name">
+      </div>
+      <div class="field">
+        <label>ID_CODE</label>
+        <input type="text" data-target="B" data-field="code">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>GRADE</label>
+          <select data-target="B" data-field="grade">
+            <option>SS</option><option>S</option><option selected>A</option><option>B</option><option>C</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ROLE</label>
+          <select data-target="B" data-field="role">
+            <option value="센티넬">SENTINEL</option>
+            <option value="가이드" selected>GUIDE</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>ELEMENT</label>
+        <div class="elem-grid" data-target="B" data-field="element"></div>
+      </div>
+      <div class="field">
+        <label>STAT_MATRIX</label>
+        <div class="slider-grp" data-target="B"></div>
+      </div>
+      <div class="field">
+        <label>STATUS_LOG</label>
+        <textarea data-target="B" data-field="note"></textarea>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-R">
+      <div class="field">
+        <label>DOSSIER_NO</label>
+        <input type="text" id="in-dossier">
+      </div>
+      <div class="slider-row" style="margin-bottom:14px;">
+        <div class="sl-lbl">싱크로율</div>
+        <input type="range" id="in-sync" min="0" max="100" value="92">
+        <div class="sl-val" id="v-sync">92</div>
+      </div>
+      <div class="slider-row" style="margin-bottom:16px;">
+        <div class="sl-lbl">중독 위험</div>
+        <input type="range" id="in-addict" min="0" max="100" value="55">
+        <div class="sl-val" id="v-addict">55</div>
+      </div>
+      <div class="field">
+        <label>IMPRINT_STATUS</label>
+        <select id="in-imprint">
+          <option>미확인</option>
+          <option>낮음</option>
+          <option>조짐 감지</option>
+          <option selected>발현 임박</option>
+          <option>영구 각인</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>PROTOCOL_CODE</label>
+        <select id="in-code">
+          <option value="GREEN">CODE: GREEN (안정)</option>
+          <option value="BLUE">CODE: BLUE (관찰)</option>
+          <option value="YELLOW">CODE: YELLOW (주의)</option>
+          <option value="ORANGE">CODE: ORANGE (위험)</option>
+          <option value="RED" selected>CODE: RED (긴급)</option>
+          <option value="BLACK">CODE: BLACK (폭주 임박)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>CODE_DESCRIPTION</label>
+        <textarea id="in-code-desc"></textarea>
+      </div>
+      <div class="field">
+        <label>RELATION_NOTE</label>
+        <textarea id="in-relation"></textarea>
+      </div>
+    </div>
+
+    <div class="action-block">
+      <button class="btn primary" onclick="downloadImage()">▼ EXPORT_AS_IMAGE</button>
+      <div class="btn-row">
+        <button class="btn small" onclick="randomize()">⚇ RANDOMIZE</button>
+        <button class="btn small" onclick="resetAll()">⊘ RESET_ALL</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ========= DATA ========= */
+const ELEMENTS = [
+  {k:'none', n:'무속성', s:'◯', en:'NONE'},
+  {k:'fire', n:'불', s:'🔥', en:'PYRE'},
+  {k:'water', n:'물', s:'💧', en:'AQUA'},
+  {k:'grass', n:'풀', s:'🌿', en:'VERDE'},
+  {k:'light', n:'번개', s:'⚡', en:'FULMEN'},
+  {k:'wind', n:'바람', s:'💨', en:'AERO'},
+  {k:'ice', n:'얼음', s:'❄️', en:'GLACIES'}
+];
+
+const STATS = [
+  {k:'out', n:'출력', e:'OUTPUT'},
+  {k:'ctl', n:'제어', e:'CONTROL'},
+  {k:'rsn', n:'공명', e:'RESONANCE'},
+  {k:'pcp', n:'감응', e:'PERCEPT'},
+  {k:'stb', n:'안정', e:'STABILITY'},
+  {k:'rcv', n:'회복', e:'RECOVERY'}
+];
+
+const CODE_DEFAULTS = {
+  GREEN:'안정 범주. 정기 가이딩 권장.',
+  BLUE:'관찰 단계. 페어링 데이터 누적 중.',
+  YELLOW:'경계 단계. 정기 모니터링 필요.',
+  ORANGE:'위험 단계. 별도 가이딩 세션 권고.',
+  RED:'가이드의 지속적 밀착 가이딩 필요.\n쌍방 파장 충돌 시 즉시 보고.',
+  BLACK:'폭주 임박. 즉각 STAB 격리 검토.'
+};
+
+function defaultState(){
+  return {
+    A:{name:'',code:'',grade:'A',role:'센티넬',element:'fire',note:'',photo:null,
+       photoTransform:{xR:0,yR:0,scale:1},
+       stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
+    B:{name:'',code:'',grade:'A',role:'가이드',element:'water',note:'',photo:null,
+       photoTransform:{xR:0,yR:0,scale:1},
+       stats:{out:50,ctl:50,rsn:50,pcp:50,stb:50,rcv:50}},
+    R:{dossier:'',sync:92,addict:55,imprint:'발현 임박',code:'RED',
+       codeDesc:CODE_DEFAULTS.RED,relation:''}
+  };
+}
+
+let state = defaultState();
+
+/* ========= CURSOR ========= */
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e=>{
+  cursor.style.left = e.clientX+'px';
+  cursor.style.top = e.clientY+'px';
+});
+document.addEventListener('mousedown', ()=>cursor.classList.add('click-anim'));
+document.addEventListener('mouseup', ()=>cursor.classList.remove('click-anim'));
+
+/* ========= BOOT ========= */
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{
+    document.getElementById('boot').style.display='none';
+    notify('RESONANCE_NEXUS_INITIALIZED');
+  }, 1500);
+  init();
+});
+
+/* ========= INIT ========= */
+function init(){
+  document.getElementById('dossier-no').innerText = generateDossier();
+  state.R.dossier = document.getElementById('dossier-no').innerText;
+  updateDate();
+
+  // elements
+  ['A','B'].forEach(t=>{
+    const grid = document.querySelector(`.elem-grid[data-target="${t}"]`);
+    ELEMENTS.forEach(el=>{
+      const div = document.createElement('div');
+      div.className = 'elem-opt' + (state[t].element===el.k?' active':'');
+      div.dataset.el = el.k;
+      div.innerHTML = `<span class="symb">${el.s}</span>${el.n}`;
+      div.onclick = ()=>{
+        grid.querySelectorAll('.elem-opt').forEach(o=>o.classList.remove('active'));
+        div.classList.add('active');
+        state[t].element = el.k;
+        renderTags(t);save();
+      };
+      grid.appendChild(div);
+    });
+  });
+
+  // sliders
+  ['A','B'].forEach(t=>{
+    const grp = document.querySelector(`.slider-grp[data-target="${t}"]`);
+    STATS.forEach(st=>{
+      const row = document.createElement('div');
+      row.className = 'slider-row';
+      row.innerHTML = `
+        <div class="sl-lbl">${st.n}</div>
+        <input type="range" min="0" max="100" value="${state[t].stats[st.k]}" data-stat="${st.k}">
+        <div class="sl-val">${state[t].stats[st.k]}</div>
+      `;
+      const inp = row.querySelector('input');
+      const val = row.querySelector('.sl-val');
+      inp.oninput = ()=>{
+        state[t].stats[st.k] = +inp.value;
+        val.innerText = inp.value;
+        renderStats(t);save();
+      };
+      grp.appendChild(row);
+    });
+    renderStats(t);
+  });
+
+  // text inputs
+  document.querySelectorAll('input[data-target][data-field], select[data-target][data-field], textarea[data-target][data-field]').forEach(el=>{
+    el.oninput = ()=>{
+      const t = el.dataset.target, f = el.dataset.field;
+      state[t][f] = el.value;
+      renderCard(t);save();
+    };
+  });
+
+  // photo
+  document.querySelectorAll('input[type=file][data-target]').forEach(el=>{
+    el.onchange = e=>{
+      const t = el.dataset.target;
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        state[t].photo = ev.target.result;
+        state[t].photoTransform = {xR:0,yR:0,scale:1};
+        renderPhoto(t);
+        document.getElementById('file-up-'+t).classList.add('has-file');
+        document.querySelector(`#file-up-${t} span`).innerText = '✓ REPLACE_VISUAL';
+        save();notify('VISUAL_LOADED_'+t);
+      };
+      reader.readAsDataURL(file);
+    };
+  });
+
+  // relation
+  const sync = document.getElementById('in-sync'), addict=document.getElementById('in-addict');
+  sync.oninput = ()=>{state.R.sync = +sync.value; document.getElementById('v-sync').innerText=sync.value; renderSync();save();};
+  addict.oninput = ()=>{state.R.addict = +addict.value; document.getElementById('v-addict').innerText=addict.value; renderSync();save();};
+  document.getElementById('in-imprint').onchange = e=>{state.R.imprint=e.target.value;renderSync();save();};
+  document.getElementById('in-code').onchange = e=>{
+    state.R.code = e.target.value;
+    state.R.codeDesc = CODE_DEFAULTS[e.target.value];
+    document.getElementById('in-code-desc').value = state.R.codeDesc;
+    renderSync();save();
+  };
+  document.getElementById('in-code-desc').oninput = e=>{state.R.codeDesc=e.target.value;renderSync();save();};
+  document.getElementById('in-relation').oninput = e=>{state.R.relation=e.target.value;renderSync();save();};
+  document.getElementById('in-dossier').oninput = e=>{
+    state.R.dossier=e.target.value;
+    document.getElementById('dossier-no').innerText = e.target.value || '—';
+    save();
+  };
+
+  // tabs
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.onclick = ()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    };
+  });
+
+  // photo interaction (drag + zoom)
+  ['A','B'].forEach(t=>setupPhotoInteraction(t));
+
+  // load saved
+  try{
+    const saved = localStorage.getItem('arch_resonance_nexus');
+    if(saved){
+      state = JSON.parse(saved);
+      // migration: ensure photoTransform exists with ratio-based format
+      ['A','B'].forEach(t=>{
+        const pt = state[t].photoTransform;
+        if(!pt || pt.xR === undefined){
+          // 이전 픽셀 좌표 포맷이거나 없음 → 리셋
+          state[t].photoTransform = {xR:0,yR:0,scale:(pt && pt.scale) || 1};
+        }
+      });
+      applyState();
+      notify('AUTOSAVE_RESTORED');
+    }else{
+      // initialize with defaults
+      document.getElementById('in-code-desc').value = state.R.codeDesc;
+      renderAll();
+    }
+  }catch(err){
+    document.getElementById('in-code-desc').value = state.R.codeDesc;
+    renderAll();
+  }
+}
+
+function applyState(){
+  ['A','B'].forEach(t=>{
+    document.querySelectorAll(`input[data-target="${t}"][data-field], select[data-target="${t}"][data-field], textarea[data-target="${t}"][data-field]`).forEach(el=>{
+      if(el.dataset.field && state[t][el.dataset.field] !== undefined){
+        el.value = state[t][el.dataset.field];
+      }
+    });
+    document.querySelectorAll(`.elem-grid[data-target="${t}"] .elem-opt`).forEach(o=>{
+      o.classList.toggle('active', o.dataset.el===state[t].element);
+    });
+    document.querySelectorAll(`.slider-grp[data-target="${t}"] input[type=range]`).forEach(inp=>{
+      const sk = inp.dataset.stat;
+      inp.value = state[t].stats[sk];
+      inp.parentElement.querySelector('.sl-val').innerText = state[t].stats[sk];
+    });
+    if(state[t].photo){
+      document.getElementById('file-up-'+t).classList.add('has-file');
+      document.querySelector(`#file-up-${t} span`).innerText = '✓ REPLACE_VISUAL';
+    }else{
+      document.getElementById('file-up-'+t).classList.remove('has-file');
+      document.querySelector(`#file-up-${t} span`).innerText = '▲ UPLOAD_VISUAL';
+    }
+  });
+  document.getElementById('in-dossier').value = state.R.dossier || '';
+  document.getElementById('in-sync').value = state.R.sync;
+  document.getElementById('v-sync').innerText = state.R.sync;
+  document.getElementById('in-addict').value = state.R.addict;
+  document.getElementById('v-addict').innerText = state.R.addict;
+  document.getElementById('in-imprint').value = state.R.imprint;
+  document.getElementById('in-code').value = state.R.code;
+  document.getElementById('in-code-desc').value = state.R.codeDesc;
+  document.getElementById('in-relation').value = state.R.relation;
+  if(state.R.dossier) document.getElementById('dossier-no').innerText = state.R.dossier;
+  renderAll();
+}
+
+/* ========= RENDER ========= */
+function renderAll(){
+  ['A','B'].forEach(t=>{renderCard(t);renderPhoto(t);renderStats(t);});
+  renderSync();
+}
+
+function renderCard(t){
+  document.getElementById('name-'+t).innerText = state[t].name || '';
+  document.getElementById('code-'+t).innerText = state[t].code || '';
+  document.getElementById('note-'+t).innerText = state[t].note || '';
+  renderTags(t);
+}
+
+function renderTags(t){
+  const el = ELEMENTS.find(e=>e.k===state[t].element) || ELEMENTS[0];
+  document.getElementById('tags-'+t).innerHTML = `
+    <span class="tag solid">${state[t].grade}급</span>
+    <span class="tag">${state[t].role}</span>
+    <span class="tag elem"><span>${el.s}</span><span>${el.en}</span></span>
+  `;
+}
+
+function renderPhoto(t){
+  const frame = document.getElementById('photo-'+t);
+  const adj = document.getElementById('photo-adj-'+t);
+  const tr = state[t].photoTransform || {xR:0,yR:0,scale:1};
+  if(state[t].photo){
+    frame.classList.add('has-photo');
+    frame.innerHTML = `
+      <img class="photo-img" src="${state[t].photo}" alt="" draggable="false">
+      <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
+      <div class="ph-corner bl"></div><div class="ph-corner br"></div>
+      <div class="scan-overlay"></div>
+    `;
+    const img = frame.querySelector('.photo-img');
+    const applyFit = ()=>{
+      // 자연 비율 유지: 가로형(W>=H)은 세로를 frame에 맞춤 → 가로 overflow
+      //                 세로형(W<H)은 가로를 frame에 맞춤 → 세로 overflow
+      img.classList.add(img.naturalWidth >= img.naturalHeight ? 'fit-h' : 'fit-w');
+      updatePhotoTransform(t);
+    };
+    if(img.complete && img.naturalWidth > 0){
+      applyFit();
+    }else{
+      img.onload = applyFit;
+    }
+    if(adj) adj.classList.add('show');
+    const zs = document.getElementById('zoom-'+t);
+    if(zs){ zs.value = tr.scale; document.getElementById('zoom-val-'+t).innerText = tr.scale.toFixed(2)+'×'; }
+  }else{
+    frame.classList.remove('has-photo');
+    frame.innerHTML = `
+      <div class="empty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+          <rect x="3" y="3" width="18" height="18"/>
+          <path d="M3 17l5-5 4 4 4-4 5 5"/><circle cx="9" cy="9" r="1.5"/>
+        </svg>
+      </div>
+      <div class="ph-corner tl"></div><div class="ph-corner tr"></div>
+      <div class="ph-corner bl"></div><div class="ph-corner br"></div>
+      <div class="scan-overlay"></div>
+    `;
+    if(adj) adj.classList.remove('show');
+  }
+}
+
+function updatePhotoTransform(t){
+  const frame = document.getElementById('photo-'+t);
+  const img = frame.querySelector('.photo-img');
+  if(!img) return;
+  const tr = state[t].photoTransform;
+  const w = frame.offsetWidth || 1;
+  const h = frame.offsetHeight || 1;
+  const px = (tr.xR||0) * w;
+  const py = (tr.yR||0) * h;
+  img.style.transform = `translate(-50%,-50%) translate(${px}px,${py}px) scale(${tr.scale})`;
+}
+
+function resetPhotoTransform(t){
+  state[t].photoTransform = {xR:0,yR:0,scale:1};
+  updatePhotoTransform(t);
+  const zs = document.getElementById('zoom-'+t);
+  if(zs){ zs.value = 1; document.getElementById('zoom-val-'+t).innerText = '1.00×'; }
+  save();
+  notify('POSITION_RESET_'+t);
+}
+
+function setupPhotoInteraction(t){
+  const frame = document.getElementById('photo-'+t);
+  let dragging = false;
+  let lastX=0, lastY=0;
+  // pinch zoom
+  let pinching = false;
+  let pinchStartDist = 0, pinchStartScale = 1;
+
+  const pointFromEvent = (e)=>{
+    if(e.touches && e.touches.length){
+      return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+    }
+    return {x:e.clientX, y:e.clientY};
+  };
+  const getDistance = (touches)=>{
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  };
+
+  const onDown = (e)=>{
+    if(!state[t].photo) return;
+    if(e.touches && e.touches.length === 2){
+      pinching = true;
+      pinchStartDist = getDistance(e.touches);
+      pinchStartScale = state[t].photoTransform.scale;
+      e.preventDefault();
+      return;
+    }
+    dragging = true;
+    const p = pointFromEvent(e);
+    lastX = p.x; lastY = p.y;
+    frame.classList.add('dragging');
+    e.preventDefault();
+  };
+
+  const onMove = (e)=>{
+    if(pinching && e.touches && e.touches.length === 2){
+      const newDist = getDistance(e.touches);
+      const factor = newDist / pinchStartDist;
+      const newScale = Math.max(0.5, Math.min(3, pinchStartScale * factor));
+      state[t].photoTransform.scale = newScale;
+      updatePhotoTransform(t);
+      const zs = document.getElementById('zoom-'+t);
+      if(zs){ zs.value = newScale; document.getElementById('zoom-val-'+t).innerText = newScale.toFixed(2)+'×'; }
+      e.preventDefault();
+      return;
+    }
+    if(!dragging) return;
+    const p = pointFromEvent(e);
+    const dx = p.x - lastX;
+    const dy = p.y - lastY;
+    lastX = p.x; lastY = p.y;
+    const w = frame.offsetWidth || 1;
+    const h = frame.offsetHeight || 1;
+    state[t].photoTransform.xR = (state[t].photoTransform.xR || 0) + dx / w;
+    state[t].photoTransform.yR = (state[t].photoTransform.yR || 0) + dy / h;
+    updatePhotoTransform(t);
+    e.preventDefault();
+  };
+
+  const onUp = ()=>{
+    if(dragging || pinching){ save(); }
+    dragging = false;
+    pinching = false;
+    frame.classList.remove('dragging');
+  };
+
+  const onWheel = (e)=>{
+    if(!state[t].photo) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.06 : 0.06;
+    const newScale = Math.max(0.5, Math.min(3, state[t].photoTransform.scale + delta));
+    state[t].photoTransform.scale = newScale;
+    updatePhotoTransform(t);
+    const zs = document.getElementById('zoom-'+t);
+    if(zs){ zs.value = newScale; document.getElementById('zoom-val-'+t).innerText = newScale.toFixed(2)+'×'; }
+    clearTimeout(window['_zsave_'+t]);
+    window['_zsave_'+t] = setTimeout(save, 400);
+  };
+
+  frame.addEventListener('mousedown', onDown);
+  frame.addEventListener('touchstart', onDown, {passive:false});
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, {passive:false});
+  document.addEventListener('mouseup', onUp);
+  document.addEventListener('touchend', onUp);
+  document.addEventListener('touchcancel', onUp);
+  frame.addEventListener('wheel', onWheel, {passive:false});
+
+  // zoom slider
+  const zs = document.getElementById('zoom-'+t);
+  if(zs){
+    zs.oninput = ()=>{
+      state[t].photoTransform.scale = +zs.value;
+      document.getElementById('zoom-val-'+t).innerText = (+zs.value).toFixed(2)+'×';
+      updatePhotoTransform(t);
+      clearTimeout(window['_zsave_'+t]);
+      window['_zsave_'+t] = setTimeout(save, 400);
+    };
+  }
+}
+
+function renderStats(t){
+  const eq = document.getElementById('eq-'+t);
+  eq.innerHTML = '';
+  let total = 0;
+  STATS.forEach(st=>{
+    const v = state[t].stats[st.k];
+    total += v;
+    const col = document.createElement('div');
+    col.className = 'eq-col';
+    col.innerHTML = `
+      <div class="val">${v}</div>
+      <div class="eq-bar-wrap"><div class="eq-fill" style="height:${v}%"></div></div>
+      <div class="lbl">${st.n}</div>
+    `;
+    eq.appendChild(col);
+  });
+  document.getElementById('tot-'+t).innerText = total;
+}
+
+function renderSync(){
+  const sync = state.R.sync;
+  const circ = 2 * Math.PI * 78;
+  document.getElementById('sync-prog').setAttribute('stroke-dashoffset', circ * (1 - sync/100));
+  document.getElementById('sync-num').innerText = sync;
+
+  let grade;
+  if(sync<50) grade='F / 배정 불가';
+  else if(sync<71) grade='C / 표준';
+  else if(sync<91) grade='B-A / 엘리트';
+  else grade='S / 전설';
+  document.getElementById('grade-out').innerText = grade;
+
+  const a = state.R.addict;
+  let aw;
+  if(a>70) aw=a+'% / 고위험';
+  else if(a>45) aw=a+'% / 주의';
+  else aw=a+'% / 안정';
+  document.getElementById('addict-out').innerText = aw;
+
+  document.getElementById('imprint-out').innerText = state.R.imprint;
+  document.getElementById('code-val').innerText = state.R.code;
+  document.getElementById('code-desc').innerText = state.R.codeDesc || '';
+  document.getElementById('relation-text').innerText = state.R.relation || '';
+}
+
+/* ========= UTILS ========= */
+function notify(msg){
+  const n = document.getElementById('notif');
+  n.innerText = '>> '+msg;
+  n.style.display='block';
+  n.style.animation = 'none';
+  void n.offsetWidth;
+  n.style.animation = 'slideIn 0.3s forwards';
+  clearTimeout(window._notifT);
+  window._notifT = setTimeout(()=>{n.style.display='none';},2800);
+}
+function generateDossier(){
+  const r1 = Math.random().toString(36).substr(2,2).toUpperCase();
+  const r2 = String(Math.floor(Math.random()*90+10));
+  const r3 = Math.random().toString(36).substr(2,3).toUpperCase();
+  return `HD-${r1}${r2}-${r3}`;
+}
+function updateDate(){
+  const now = new Date();
+  const y = now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0'),d=String(now.getDate()).padStart(2,'0');
+  document.getElementById('date').innerText = `${y}.${m}.${d}`;
+  document.getElementById('cap-ft-time').innerText = `${y}${m}${d}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+}
+setInterval(()=>{
+  document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-GB');
+},1000);
+
+// 창 크기 변경 시 photo transform 재계산 (ratio 기반)
+let _resizeT;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_resizeT);
+  _resizeT = setTimeout(()=>{
+    ['A','B'].forEach(t=>{ if(state[t] && state[t].photo) updatePhotoTransform(t); });
+  }, 100);
+});
+
+/* ========= ACTIONS ========= */
+function save(){
+  try{localStorage.setItem('arch_resonance_nexus', JSON.stringify(state));}catch(e){}
+}
+
+function downloadImage(){
+  notify('CAPTURING_FRAME...');
+  const target = document.getElementById('capture-area');
+  cursor.style.display='none';
+
+  // 캡처 시 적용할 고정 데스크탑 너비 (반응형 미디어쿼리 회피)
+  const CAPTURE_WIDTH = 1180;
+
+  // 캡처 중에만 적용할 강제 데스크탑 스타일 주입
+  const forceStyle = document.createElement('style');
+  forceStyle.id = '__capture_force_style';
+  forceStyle.textContent = `
+    #capture-area{
+      width:${CAPTURE_WIDTH}px !important;
+      max-width:none !important;
+    }
+    #capture-area .cap-main{
+      grid-template-columns:1fr 260px 1fr !important;
+    }
+  `;
+  document.head.appendChild(forceStyle);
+
+  // photo-img will-change 임시 해제 (html2canvas 컴포지팅 레이어 렌더링 버그 방지)
+  target.querySelectorAll('.photo-img').forEach(img=>{
+    img.dataset._wc = img.style.willChange || '';
+    img.style.willChange = 'auto';
+  });
+
+  // 강제 reflow + photo-frame 실측 후 픽셀로 고정 (html2canvas aspect-ratio 호환)
+  void target.offsetHeight;
+  target.querySelectorAll('.photo-frame').forEach(f=>{
+    const w = f.offsetWidth;
+    f.dataset._h = f.style.height || '';
+    f.dataset._ar = f.style.aspectRatio || '';
+    f.style.height = w + 'px';
+    f.style.aspectRatio = 'auto';
+  });
+  void target.offsetHeight;
+
+  // 새 frame 크기에 맞춰 photo transform 재계산 (ratio 기반이라 자동 적용됨)
+  ['A','B'].forEach(t=>{ if(state[t].photo) updatePhotoTransform(t); });
+
+  setTimeout(()=>{
+    const restoreFrames = ()=>{
+      target.querySelectorAll('.photo-frame').forEach(f=>{
+        f.style.height = f.dataset._h || '';
+        f.style.aspectRatio = f.dataset._ar || '';
+        delete f.dataset._h;
+        delete f.dataset._ar;
+      });
+      // 라이브 frame 크기로 transform 재계산
+      ['A','B'].forEach(t=>{ if(state[t].photo) updatePhotoTransform(t); });
+      // will-change 복원
+      target.querySelectorAll('.photo-img').forEach(img=>{
+        img.style.willChange = img.dataset._wc || '';
+        delete img.dataset._wc;
+      });
+    };
+    html2canvas(target, {
+      backgroundColor:'#0f0f0f',
+      scale:2,
+      useCORS:true,
+      allowTaint:true,
+      logging:false,
+      width: CAPTURE_WIDTH,
+      windowWidth: CAPTURE_WIDTH,
+      windowHeight: target.offsetHeight,
+      imageTimeout: 0,
+      onclone: (clonedDoc) => {
+        // html2canvas는 inline-flex + align-items:center를 잘못 렌더링하므로
+        // 캡처 시에만 본래 작성해주셨던 inline-block 방식으로 강제 전환 (flexbox 사용 X)
+        clonedDoc.querySelectorAll('.tag').forEach(tag => {
+          tag.style.display = 'inline-block';
+          tag.style.height = '20px';
+          
+          // 핵심 수정사항: line-height를 줄이고, bottom padding을 줘서 텍스트 렌더링 위치를 강제로 위로 밀어올립니다.
+          tag.style.lineHeight = '16px'; 
+          tag.style.padding = '0px 10px 4px 10px';
+          
+          tag.style.verticalAlign = 'middle';
+          tag.style.boxSizing = 'border-box';
+        });
+
+        // 캡처 시 ID나 센티넬/가이드 글자가 쏠린다면 여기서 미세하게 더 위로 당겨줍니다.
+        clonedDoc.querySelectorAll('.codeline').forEach(line => {
+           line.style.position = 'relative';
+           line.style.top = '-1.5px';
+        });
+      }
+    }).then(canvas=>{
+      // 클린업
+      forceStyle.remove();
+      restoreFrames();
+      cursor.style.display='block';
+      const link = document.createElement('a');
+      const name = (state.A.name || 'A') + '_' + (state.B.name || 'B');
+      link.download = `RESONANCE_${name}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      notify('EXPORT_COMPLETE');
+    }).catch(err=>{
+      forceStyle.remove();
+      restoreFrames();
+      cursor.style.display='block';
+      notify('EXPORT_FAILED');console.error(err);
+    });
+  }, 100);
+}
+
+function randomize(){
+  ['A','B'].forEach(t=>{
+    STATS.forEach(st=>{state[t].stats[st.k] = Math.floor(Math.random()*80+15);});
+  });
+  state.R.sync = Math.floor(Math.random()*40+60);
+  state.R.addict = Math.floor(Math.random()*80+15);
+  applyState();
+  notify('STAT_RANDOMIZED');
+}
+
+function resetAll(){
+  if(!confirm('전체 데이터를 초기화할까요?')) return;
+  try{localStorage.removeItem('arch_resonance_nexus');}catch(e){}
+  state = defaultState();
+  state.R.dossier = generateDossier();
+  document.getElementById('dossier-no').innerText = state.R.dossier;
+  applyState();
+  // reset tab to A
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab[data-tab="A"]').classList.add('active');
+  document.getElementById('tab-A').classList.add('active');
+  notify('DATA_RESET_COMPLETE');
+}
+</script>
+</body>
+</html>
