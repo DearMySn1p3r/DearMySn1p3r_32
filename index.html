@@ -514,7 +514,6 @@ header .right b{color:#fff;font-weight:700;}
 <div class="noise-bg"></div>
 <div id="notif">SYSTEM_MESSAGE</div>
 
-<!-- BOOT -->
 <div id="boot">
   <img class="logo-img" src="「ARCH」 Symbol Logo White Ver.png" alt="ARCH" onerror="this.style.display='none'">
   <div class="logo-text">ARCH</div>
@@ -522,7 +521,6 @@ header .right b{color:#fff;font-weight:700;}
   <div class="bar"><div></div></div>
 </div>
 
-<!-- HEADER -->
 <header>
   <div class="left">
     <img class="logo-img" src="「ARCH」 Symbol Logo White Ver.png" alt="ARCH" onerror="this.style.display='none'">
@@ -537,10 +535,8 @@ header .right b{color:#fff;font-weight:700;}
   </div>
 </header>
 
-<!-- STAGE -->
 <div id="stage">
 
-  <!-- CAPTURE AREA -->
   <div id="capture-area">
     <div class="corner-br tl"></div><div class="corner-br tr"></div>
     <div class="corner-br bl"></div><div class="corner-br br"></div>
@@ -559,7 +555,6 @@ header .right b{color:#fff;font-weight:700;}
 
     <div class="cap-main">
 
-      <!-- CHAR A -->
       <div class="char-card">
         <div class="idx"><span>SUBJECT_A</span><span class="dot"></span></div>
 
@@ -592,7 +587,6 @@ header .right b{color:#fff;font-weight:700;}
         <div class="status-note" id="note-A"></div>
       </div>
 
-      <!-- SYNC -->
       <div class="sync-panel">
         <div class="panel-tag">RESONANCE_ANALYSIS</div>
 
@@ -628,7 +622,6 @@ header .right b{color:#fff;font-weight:700;}
         </div>
       </div>
 
-      <!-- CHAR B -->
       <div class="char-card">
         <div class="idx"><span>SUBJECT_B</span><span class="dot"></span></div>
 
@@ -669,7 +662,6 @@ header .right b{color:#fff;font-weight:700;}
     </div>
   </div>
 
-  <!-- EDIT PANEL -->
   <div id="edit-panel">
     <div class="ep-head">
       <span>CONTROL_PANEL</span>
@@ -1422,7 +1414,30 @@ function downloadImage(){
       width: CAPTURE_WIDTH,
       windowWidth: CAPTURE_WIDTH,
       windowHeight: target.offsetHeight,
-      imageTimeout: 0
+      imageTimeout: 0,
+      onclone: (clonedDoc) => {
+        clonedDoc.querySelectorAll('.tag').forEach(tag => {
+          tag.style.display = 'inline-block';
+          tag.style.height = '20px';
+          tag.style.lineHeight = '20px'; // 요소 높이와 동일하게 맞춤
+          tag.style.padding = '0 10px';  // 쏠림 원인이던 상단 패딩 제거
+          tag.style.verticalAlign = 'middle';
+          tag.style.boxSizing = 'border-box';
+          tag.style.overflow = 'hidden';
+
+          // 텍스트와 이모지가 아래로 쏠리는 현상을 방지하기 위해 내부 래퍼 생성 후 위로 당김
+          const wrapper = clonedDoc.createElement('div');
+          wrapper.style.display = 'inline-block';
+          wrapper.style.verticalAlign = 'top';
+          wrapper.style.marginTop = '-1.5px'; // 텍스트를 위로 살짝 당김 (폰트에 따라 -1px ~ -2px 조절 가능)
+          
+          // 기존 내부 요소들을 래퍼 안으로 이동
+          while(tag.firstChild) {
+            wrapper.appendChild(tag.firstChild);
+          }
+          tag.appendChild(wrapper);
+        });
+      }
     }).then(canvas=>{
       // 클린업
       forceStyle.remove();
