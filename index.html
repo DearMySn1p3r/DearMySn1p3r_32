@@ -374,8 +374,8 @@ header .right b{color:#fff;font-weight:700;}
 /* tabs */
 .tabs{display:flex;margin-bottom:20px;border:1px solid var(--dimmer);}
 .tab{
-  flex:1;padding:10px 4px;text-align:center;
-  font-size:10px;letter-spacing:2px;color:var(--dim);font-weight:700;
+  flex:1;padding:11px 2px;text-align:center;white-space:nowrap;
+  font-size:9.5px;letter-spacing:0.5px;color:var(--dim);font-weight:700;
   transition:0.2s;border-right:1px solid var(--dimmer);
 }
 .tab:last-child{border-right:none;}
@@ -687,9 +687,9 @@ header .right b{color:#fff;font-weight:700;}
 
     <div class="tabs">
       <div class="tab active" data-tab="O">OOC</div>
-      <div class="tab" data-tab="A">SUBJECT_A</div>
-      <div class="tab" data-tab="B">SUBJECT_B</div>
-      <div class="tab" data-tab="R">RELATION</div>
+      <div class="tab" data-tab="A">SUBJ_A</div>
+      <div class="tab" data-tab="B">SUBJ_B</div>
+      <div class="tab" data-tab="R">PAIR</div>
     </div>
 
     <div class="tab-content active" id="tab-O">
@@ -706,7 +706,8 @@ header .right b{color:#fff;font-weight:700;}
           <button class="btn small" onclick="parseOOC()">⇲ AUTO_FILL</button>
           <button class="btn small" onclick="document.getElementById('ooc-paste').value='';">⊘ CLEAR</button>
         </div>
-        <div class="hint" style="margin-top:8px;">인식되지 않은 항목은 각 탭에서 직접 수정할 수 있습니다.</div>
+        <button class="btn small" id="quote-btn" style="width:100%;margin-top:6px;" onclick="toggleQuotes()">❝ 둥근 따옴표로</button>
+        <div class="hint" style="margin-top:8px;">본문의 SUBJECT_A / SUBJECT_B 표기는 코드네임으로 자동 변환됩니다.</div>
       </div>
     </div>
 
@@ -906,43 +907,43 @@ const CODE_DEFAULTS = {
 };
 
 /* ========= OOC ========= */
-const OOC_PROMPT = `*[OOC: 이전 RP 중지. 새로운 상황 전개. 본 문서는 ARCH 하모니 부서 내부망에 신규 등록되는 PC와 NPC의 페어 프로파일이다. 현재까지의 서사, 두 사람의 관계, 능력, 심리 상태를 종합 분석하여 아래 양식 그대로 출력한다. 모든 항목은 누락 없이 작성하며, 수치는 캐릭터의 행동·대사·배경을 근거로 합리적으로 산출한다.
+const OOC_PROMPT = `*[OOC: 이전 RP 중지. 아래는 ARCH 하모니 부서 내부망에 신규 등록되는 PC와 NPC의 페어 프로파일이다. 지금까지의 서사·관계·능력·심리 상태를 종합해 아래 양식 그대로 출력한다.
 
-· DOSSIER_NO: HD-XX00-XXX (영문 2자 + 숫자 2자 + 영문 3자 식별 코드, 임의 생성)
-· ID_CODE: ARH-등급숫자-이니셜 형식 (예: ARH-S01-J)
+· 순수 텍스트로만 출력한다. HTML·표·코드블록·마크다운 강조 금지
+· 항목명은 그대로 두고 값만 채운다. 생략하지 않는다
+· 코드네임은 영문 대문자로 짓는다 (예: HUGO)
+· ID_CODE는 ARH-등급숫자-이니셜 (예: ARH-S01-J)
+· 문서번호는 HD-XX00-XXX (영문 2자 + 숫자 2자 + 영문 3자, 임의 생성)
+· 모든 수치는 0~100 정수. 캐릭터의 행동·대사·배경을 근거로 산출한다
 
-[ SUBJECT_A ] / [ SUBJECT_B ] 각각 아래 항목을 작성한다.
-· CODENAME 코드네임:
+[SUBJECT_A]
+· 코드네임:
 · ID_CODE:
-· GRADE 등급: SS / S / A / B / C 중 택1
-· ROLE 역할: 센티넬 / 가이드 중 택1
-· ELEMENT 속성: 무속성 / 불 / 물 / 풀 / 번개 / 바람 / 얼음 중 택1
+· 등급: SS / S / A / B / C
+· 역할: 센티넬 / 가이드
+· 속성: 무속성 / 불 / 물 / 풀 / 번개 / 바람 / 얼음
+· 출력:
+· 제어:
+· 공명:
+· 감응:
+· 안정:
+· 회복:
+· 상태기록:
+· 현재 상태·특이사항·관찰 메모 3~5줄. 사무적 보고서 어투
 
-[ STAT_MATRIX ] (각 0~100 정수)
-· 출력 OUTPUT: ___    (전투 및 능력 발현 강도)
-· 제어 CONTROL: ___    (능력 정밀도 및 통제력)
-· 공명 RESONANCE: ___    (파장 동조·공명 수용력)
-· 감응 PERCEPTION: ___    (감각·감응 예민도)
-· 안정 STABILITY: ___    (정신 안정성·폭주 저항)
-· 회복 RECOVERY: ___    (탈진 후 회복 속도)
+[SUBJECT_B]
+· SUBJECT_A와 동일한 항목을 하나도 빠짐없이 작성한다
 
-[ STATUS_LOG ]
-(현재 상태·특이사항·관찰 메모 3~5줄. 사무적 보고서 어투.)
-
-· SYNC_RATE 싱크로율: __% (0~100)
-· ADDICTION 중독 위험도: __% (0~100)
-· IMPRINT_STATUS 각인 상태: 미확인 / 낮음 / 조짐 감지 / 발현 임박 / 영구 각인 중 택1
-· PROTOCOL_CODE 프로토콜: GREEN / BLUE / YELLOW / ORANGE / RED / BLACK 중 택1
-
-[ CODE_DESCRIPTION ]
-(현재 프로토콜 발령 사유 및 하모니 부서 권고사항 2~3줄)
-
-[ RELATION_NOTE ]
-(두 사람의 현재 관계·페어링 평가·특이 행동 패턴·향후 관찰 포인트 4~6줄. 분석 어투에 미세한 주관 허용.)
-
-출력은 HTML 형식으로 하며 div, span, 인라인 스타일을 사용해
-기록 문서처럼 시각적으로 구성하고,
-전체 내용을 백틱으로 감싼다.]*`;
+[PAIR]
+· 문서번호:
+· 싱크로율:
+· 중독위험도:
+· 각인상태: 미확인 / 낮음 / 조짐 감지 / 발현 임박 / 영구 각인
+· 프로토콜: GREEN / BLUE / YELLOW / ORANGE / RED / BLACK
+· 발령사유:
+· 프로토콜 발령 사유 및 하모니 부서 권고사항 2~3줄
+· 관계기록:
+· 두 사람의 관계·페어링 평가·특이 행동 패턴·향후 관찰 포인트 4~6줄]*`;
 
 function copyOOC(){
   const done = ()=>notify('OOC_COPIED');
@@ -959,18 +960,35 @@ function copyOOC(){
 }
 
 /* HTML 출력도 받도록 태그를 걷어내고 순수 텍스트로 변환 */
+const SEP='\u241F';
 function stripHTML(raw){
   let s = String(raw).replace(/^\s*`{3,}[a-z]*\s*/i,'').replace(/`{3,}\s*$/,'').replace(/`/g,'');
-  if(!/<[a-z][\s\S]*>/i.test(s)) return s;
-  s = s.replace(/<\s*(br|\/div|\/p|\/li|\/tr|\/h[1-6])\s*\/?>/gi,'\n');
-  s = s.replace(/<\s*\/\s*td\s*>/gi,': ');
-  s = s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'');
+  if(!/<[a-z][\s\S]*?>/i.test(s)) return s;
+
+  s = s.replace(/<(style|script|head)[\s\S]*?<\/\1>/gi,'');
+  // 줄이 바뀌는 요소
+  s = s.replace(/<\s*br\s*\/?>/gi,'\n');
+  s = s.replace(/<\s*\/\s*(div|p|tr|li|h[1-6]|section|article|ul|ol|table|thead|tbody|blockquote|hr)\s*>/gi,'\n');
+  s = s.replace(/<\s*hr\s*\/?>/gi,'\n');
+  // 같은 줄에서 라벨과 값을 가르는 요소
+  s = s.replace(/<\s*\/\s*(span|td|th|b|strong|em|i|small|label|code|dt|dd)\s*>/gi,SEP);
   s = s.replace(/<[^>]+>/g,'');
-  const map={'&nbsp;':' ','&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'"};
-  return s.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|&#39;/g,m=>map[m]);
+
+  const map={'&nbsp;':' ','&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'",'&middot;':'·'};
+  s = s.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|&#39;|&middot;/g,m=>map[m]);
+
+  // 라벨과 값이 나뉘어 있으면 콜론으로 이어 붙인다
+  return s.split('\n').map(line=>{
+    if(line.indexOf(SEP)<0) return line;
+    const parts=line.split(SEP).map(x=>x.trim()).filter(Boolean);
+    if(!parts.length) return '';
+    if(parts.length===1) return parts[0];
+    const head=parts[0];
+    if(/[:：]\s*\S/.test(head)) return parts.join(' ');
+    return head+': '+parts.slice(1).join(' ');
+  }).join('\n');
 }
 
-const P_SEC = /^[\[\s·•\-]*\s*(SUBJECT[_\s]?A|SUBJECT[_\s]?B|대상\s*A|대상\s*B|A|B|RELATION|관계|공통|PAIR)\s*[\]\s]*$/i;
 const P_KEYS = [
   [/^(codename|코드네임|이름|명칭|name)$/i,'name'],
   [/^(id[_\s]?code|아이디|식별코드|코드)$/i,'code'],
@@ -989,11 +1007,29 @@ const R_KEYS = [
   [/^(relation([_\s]?note)?|관계기록|관계평가|관계|페어링평가)$/i,'relation']
 ];
 const STAT_KEYS = [
-  [/^(출력|output|출력\s*output)$/i,'out'],[/^(제어|control)$/i,'ctl'],
+  [/^(출력|output)$/i,'out'],[/^(제어|control)$/i,'ctl'],
   [/^(공명|resonance)$/i,'rsn'],[/^(감응|perception|percept)$/i,'pcp'],
   [/^(안정|stability)$/i,'stb'],[/^(회복|recovery)$/i,'rcv']
 ];
 const BLOCK_KEYS = new Set(['note','codeDesc','relation']);
+
+/* "98.9% (측정 불가)" 같은 값에서 첫 숫자만 뽑는다 */
+function numOf(val){
+  const m=String(val).match(/(\d{1,3})(?:[.,]\d+)?/);
+  if(!m) return null;
+  return Math.max(0,Math.min(100,parseInt(m[1],10)));
+}
+/* 수치를 "SS" "B+" 처럼 등급 문자로 적어오는 경우 대응 */
+const RANK_NUM={SSS:100,SS:95,S:88,A:78,B:66,C:54,D:42,E:30,F:18};
+function statOf(val){
+  const n=numOf(val);
+  if(n!==null) return n;
+  const m=String(val).trim().toUpperCase().match(/^(SSS|SS|S|A|B|C|D|E|F)\s*([+\-])?/);
+  if(!m) return null;
+  let v=RANK_NUM[m[1]];
+  if(m[2]==='+') v+=5; else if(m[2]==='-') v-=5;
+  return Math.max(0,Math.min(100,v));
+}
 
 /* "CODENAME 코드네임" 처럼 영문·한글이 섞인 항목명도 인식하도록 후보를 만든다 */
 function keyCands(raw){
@@ -1015,7 +1051,7 @@ function parseOOC(){
   const raw = document.getElementById('ooc-paste').value.trim();
   if(!raw){ notify('NO_INPUT_DATA'); return; }
   const text = stripHTML(raw).replace(/\r/g,'').replace(/：/g,':').replace(/[*#]/g,'');
-  let sec='R', cur=null, hit=0;
+  let sec='R', cur=null, hit=0, lastSub='A';
 
   const setBlock=(c,line)=>{
     const clean=line.replace(/^[·•\-*\s]+/,'').trim();
@@ -1029,12 +1065,13 @@ function parseOOC(){
     const t=line.trim();
     if(!t) continue;
 
-    const sm=t.match(P_SEC);
-    if(sm){
-      const v=sm[1].toUpperCase().replace(/[\s_]/g,'');
-      if(/^(SUBJECTA|대상A|A)$/.test(v)) sec='A';
-      else if(/^(SUBJECTB|대상B|B)$/.test(v)) sec='B';
-      else sec='R';
+    // 섹션 머리글: 장식이 붙어도 인식하되, 문장 속 언급과는 구분한다
+    const hdRe=k=>new RegExp('^[^A-Za-z가-힣\\[]*\\[?\\s*(?:SUBJECT[_\\s]?'+k+'|대상\\s*'+k+'|캐릭터\\s*'+k+')\\s*\\]?\\s*(?:[/|·\\-–—].*)?$','i');
+    const hasA=hdRe('A').test(t)||/^\[?\s*A\s*\]?$/.test(t);
+    const hasB=hdRe('B').test(t)||/^\[?\s*B\s*\]?$/.test(t);
+    const hasR=/^[^A-Za-z가-힣\[]*\[?\s*(RELATION|PAIR|관계|공통)\s*\]?\s*(?:[/|·\-–—].*)?$/i.test(t);
+    if(hasA||hasB||hasR){
+      sec = hasA ? (lastSub='A') : hasB ? (lastSub='B') : 'R';
       cur=null; continue;
     }
 
@@ -1043,45 +1080,72 @@ function parseOOC(){
     if(hd){
       const fd=matchKey(R_KEYS.concat(P_KEYS),hd[1]);
       if(fd && BLOCK_KEYS.has(fd[1])){
-        cur={f:fd[1],sec:(P_KEYS.some(([,n])=>n===fd[1])?sec:'R'),buf:[]};
+        cur={f:fd[1],sec:(P_KEYS.some(([,n])=>n===fd[1])?((sec==='A'||sec==='B')?sec:lastSub):'R'),buf:[]};
       }else cur=null;
       continue;
     }
 
-    const kv=t.match(/^[·•\-\s]*([가-힣A-Za-z_ /]{1,32}?)\s*:\s*(.*)$/);
+    // 콜론 없이 "STATUS_LOG" 처럼 머리글만 있는 줄
+    const bare=t.replace(/^[·•\-*\s]+/,'').replace(/[:：\s]+$/,'');
+    if(bare && bare.length<=26 && !/[0-9]/.test(bare)){
+      const fb=matchKey(R_KEYS.concat(P_KEYS),bare);
+      if(fb && BLOCK_KEYS.has(fb[1])){
+        cur={f:fb[1],sec:(P_KEYS.some(([,n])=>n===fb[1])?((sec==='A'||sec==='B')?sec:lastSub):'R'),buf:[]};
+        continue;
+      }
+    }
+
+    let kv=t.match(/^[·•\-\s]*([가-힣A-Za-z_ /]{1,32}?)\s*:\s*(.*)$/);
+    // 콜론 없이 "SYNC_RATE 96%" / "출력 OUTPUT 71" 처럼 나온 줄도 인식
+    if(!kv){
+      const m2=t.match(/^[·•\-\s]*([가-힣A-Za-z_][가-힣A-Za-z_ /]{1,30}?)\s+([0-9]{1,3}\s*%?|[A-Z]{1,6}|SS|미확인|낮음|조짐\s*감지|발현\s*임박|영구\s*각인|센티넬|가이드|무속성|불|물|풀|번개|바람|얼음)\s*$/);
+      if(m2 && matchKey(STAT_KEYS.concat(P_KEYS,R_KEYS),m2[1])) kv=[t,m2[1],m2[2]];
+    }
     if(kv){
       const key=kv[1].trim(), val=kv[2].trim();
 
       // 스탯: "출력 OUTPUT: 92" 형태 포함
       const sk=matchKey(STAT_KEYS,key);
-      if(sk && (sec==='A'||sec==='B')){
-        const n=parseInt(val.replace(/[^0-9]/g,''),10);
-        if(!isNaN(n)){ state[sec].stats[sk[1]]=Math.max(0,Math.min(100,n)); hit++; }
+      if(sk){
+        const sub=(sec==='A'||sec==='B')?sec:lastSub;
+        const n=statOf(val);
+        if(n!==null){ state[sub].stats[sk[1]]=n; hit++; }
         cur=null; continue;
       }
 
-      const table = (sec==='A'||sec==='B') ? P_KEYS.concat(R_KEYS) : R_KEYS.concat(P_KEYS);
-      const fd=matchKey(table,key);
+      const fdP=matchKey(P_KEYS,key), fdR=matchKey(R_KEYS,key);
+      const inSub=(sec==='A'||sec==='B');
+      const fd = inSub ? (fdP||fdR) : (fdR||fdP);
+      const tgt = inSub ? (fdP?sec:'R') : (fdR?'R':lastSub);
       if(fd){
         const f=fd[1];
         if(BLOCK_KEYS.has(f)){
-          cur={f,sec:(P_KEYS.some(([,n])=>n===f)?sec:'R'),buf:[]};
+          cur={f,sec:tgt,buf:[]};
           if(val){ setBlock(cur,val); hit++; }
           continue;
         }
-        if(!val){ cur=null; continue; }
-        if(sec==='A'||sec==='B'){
-          if(f==='grade'){ const g=GRADES.find(x=>val.toUpperCase().startsWith(x)); if(g){state[sec].grade=g;hit++;} }
-          else if(f==='role'){ state[sec].role = /가이드|guide/i.test(val)?'가이드':'센티넬'; hit++; }
+        if(!val) { cur=null; continue; }
+        // "SS / S / A / B / C" 처럼 선택지가 그대로 남아 있으면 미입력으로 본다
+        const segs=val.split(/\s*\/\s*/);
+        if(segs.length>=3 && segs.every(x=>x.length<=8)){ cur=null; continue; }
+        // 섹션 표시가 없어도 코드네임이 다시 나오면 두 번째 인물로 넘어간다
+        if(f==='name' && (tgt==='A'||tgt==='B') && state[tgt].name && state[tgt].name!==val){
+          if(tgt==='A' && !state.B.name){ sec=lastSub='B'; }
+        }
+        const dest = (f==='name'&&(sec==='A'||sec==='B')) ? sec : tgt;
+        if(dest==='A'||dest==='B'){
+          const sub=dest;
+          if(f==='grade'){ const g=GRADES.find(x=>val.toUpperCase().startsWith(x)); if(g){state[sub].grade=g;hit++;} }
+          else if(f==='role'){ state[sub].role = /가이드|guide/i.test(val)?'가이드':'센티넬'; hit++; }
           else if(f==='element'){
             const el=ELEMENTS.find(e=>val.includes(e.n)||val.toUpperCase().includes(e.en));
-            if(el){ state[sec].element=el.k; hit++; }
+            if(el){ state[sub].element=el.k; hit++; }
           }
-          else { state[sec][f]=val; hit++; }
+          else { state[sub][f]=val; hit++; }
         }else{
           if(f==='sync'||f==='addict'){
-            const n=parseInt(val.replace(/[^0-9]/g,''),10);
-            if(!isNaN(n)){ state.R[f]=Math.max(0,Math.min(100,n)); hit++; }
+            const n=numOf(val);
+            if(n!==null){ state.R[f]=n; hit++; }
           }
           else if(f==='imprint'){ const m=IMPRINTS.find(x=>val.includes(x)); state.R.imprint=m||state.R.imprint; hit++; }
           else if(f==='code'){ const m=val.toUpperCase().match(/GREEN|BLUE|YELLOW|ORANGE|RED|BLACK/); if(m){state.R.code=m[0];hit++;} }
@@ -1095,9 +1159,52 @@ function parseOOC(){
   }
 
   if(!hit){ notify('NO_DATA_RECOGNIZED'); return; }
+  replaceSubjectRefs();
   applyState();
   save();
   notify('AUTOFILL_COMPLETE // '+hit+'_FIELDS');
+}
+
+/* 본문에 남은 SUBJECT_A / 대상 B 같은 표기를 코드네임으로 바꾼다 */
+function replaceSubjectRefs(){
+  const pairs=[['A',(state.A.name||'').trim()],['B',(state.B.name||'').trim()]];
+  const apply=txt=>{
+    if(!txt) return txt;
+    let out=String(txt);
+    pairs.forEach(([k,nm])=>{
+      if(!nm) return;
+      const re=new RegExp('(SUBJECT[_\\s]?'+k+'|대상[_\\s]?'+k+'|캐릭터[_\\s]?'+k+')(?![A-Za-z0-9])','gi');
+      out=out.replace(re,nm);
+    });
+    return out;
+  };
+  ['A','B'].forEach(t=>{ state[t].note=apply(state[t].note); });
+  state.R.codeDesc=apply(state.R.codeDesc);
+  state.R.relation=apply(state.R.relation);
+}
+
+/* 직선따옴표 ↔ 곡선따옴표 토글 */
+let quoteMode='straight';
+function toCurly(s){
+  let d=0,g=0;
+  return String(s).replace(/["']/g,ch=>{
+    if(ch==='"'){ d^=1; return d ? '\u201C' : '\u201D'; }
+    g^=1; return g ? '\u2018' : '\u2019';
+  });
+}
+function toStraight(s){
+  return String(s).replace(/[\u201C\u201D\u201E\u00AB\u00BB]/g,'"')
+                  .replace(/[\u2018\u2019\u201A\u2039\u203A]/g,"'");
+}
+function toggleQuotes(){
+  const curly = quoteMode==='straight';
+  const fn = curly ? toCurly : toStraight;
+  ['A','B'].forEach(t=>{ state[t].note=fn(state[t].note); state[t].name=fn(state[t].name); });
+  state.R.codeDesc=fn(state.R.codeDesc);
+  state.R.relation=fn(state.R.relation);
+  quoteMode = curly ? 'curly' : 'straight';
+  applyState(); save();
+  notify(curly ? 'QUOTES_CURLY' : 'QUOTES_STRAIGHT');
 }
 
 function defaultState(){
@@ -1185,6 +1292,7 @@ function init(){
     el.oninput = ()=>{
       const t = el.dataset.target, f = el.dataset.field;
       state[t][f] = el.value;
+      if(f==='name') updateTabLabels();
       renderCard(t);save();
     };
   });
@@ -1269,6 +1377,24 @@ function init(){
   }
 }
 
+function syncQuoteBtn(){
+  const txt=[state.A.note,state.B.note,state.R.codeDesc,state.R.relation].join('');
+  if(/[\u201C\u201D\u2018\u2019]/.test(txt)) quoteMode='curly';
+  else if(/["']/.test(txt)) quoteMode='straight';
+  const btn=document.getElementById('quote-btn');
+  if(btn) btn.innerText = quoteMode==='curly' ? '❞ 곧은 따옴표로' : '❝ 둥근 따옴표로';
+}
+
+function updateTabLabels(){
+  ['A','B'].forEach(t=>{
+    const el=document.querySelector(`.tab[data-tab="${t}"]`);
+    if(!el) return;
+    const nm=(state[t].name||'').trim();
+    el.innerText = nm ? (nm.length>9 ? nm.slice(0,9) : nm) : 'SUBJ_'+t;
+    el.title = nm || '';
+  });
+}
+
 function applyState(){
   ['A','B'].forEach(t=>{
     document.querySelectorAll(`input[data-target="${t}"][data-field], select[data-target="${t}"][data-field], textarea[data-target="${t}"][data-field]`).forEach(el=>{
@@ -1302,6 +1428,8 @@ function applyState(){
   document.getElementById('in-code-desc').value = state.R.codeDesc;
   document.getElementById('in-relation').value = state.R.relation;
   if(state.R.dossier) document.getElementById('dossier-no').innerText = state.R.dossier;
+  updateTabLabels();
+  syncQuoteBtn();
   renderAll();
 }
 
@@ -1697,6 +1825,7 @@ function randomize(){
   state.R.sync = Math.floor(Math.random()*40+60);
   state.R.addict = Math.floor(Math.random()*80+15);
   applyState();
+  save();
   notify('STAT_RANDOMIZED');
 }
 
@@ -1708,11 +1837,14 @@ function resetAll(){
   state.R.dossier = generateDossier();
   document.getElementById('dossier-no').innerText = state.R.dossier;
   applyState();
-  // reset tab to A
+  // 첫 화면인 OOC 탭으로 되돌린다
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelector('.tab[data-tab="A"]').classList.add('active');
-  document.getElementById('tab-A').classList.add('active');
+  document.querySelector('.tab[data-tab="O"]').classList.add('active');
+  document.getElementById('tab-O').classList.add('active');
+  quoteMode='straight';
+  const qb=document.getElementById('quote-btn');
+  if(qb) qb.innerText='❝ 둥근 따옴표로';
   notify('DATA_RESET_COMPLETE');
 }
 </script>
