@@ -489,6 +489,21 @@ header .right b{color:#fff;font-weight:700;}
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .btn.small{padding:9px;font-size:9px;letter-spacing:2px;}
 
+/* ooc tab */
+.ooc-guide{
+  font-size:10px;letter-spacing:1px;color:var(--dim);
+  margin-bottom:10px;line-height:1.6;
+}
+.ooc-box{
+  margin:0;padding:12px;max-height:260px;overflow:auto;
+  background:rgba(255,255,255,0.02);border:1px solid var(--dimmer);
+  font-family:inherit;font-size:9.5px;line-height:1.85;color:var(--dim);
+  white-space:pre-wrap;word-break:break-word;
+}
+.ooc-box::-webkit-scrollbar{width:4px;}
+.ooc-box::-webkit-scrollbar-thumb{background:var(--dimmer);}
+.field .hint{font-size:9px;letter-spacing:0.5px;color:var(--dim);line-height:1.7;}
+
 /* notif */
 #notif{
   position:fixed;bottom:24px;right:24px;width:300px;
@@ -671,12 +686,31 @@ header .right b{color:#fff;font-weight:700;}
     </div>
 
     <div class="tabs">
-      <div class="tab active" data-tab="A">SUBJECT_A</div>
+      <div class="tab active" data-tab="O">OOC</div>
+      <div class="tab" data-tab="A">SUBJECT_A</div>
       <div class="tab" data-tab="B">SUBJECT_B</div>
       <div class="tab" data-tab="R">RELATION</div>
     </div>
 
-    <div class="tab-content active" id="tab-A">
+    <div class="tab-content active" id="tab-O">
+      <div class="field">
+        <label>STEP_01 // OOC_PROMPT</label>
+        <div class="ooc-guide">OOC 복사 → 채팅방에 전송 → 결과 붙여넣기</div>
+        <button class="btn primary" style="width:100%;margin-bottom:10px;" onclick="copyOOC()">⧉ COPY_OOC_PROMPT</button>
+        <pre class="ooc-box" id="ooc-text"></pre>
+      </div>
+      <div class="field">
+        <label>STEP_02 // PASTE_OUTPUT</label>
+        <textarea id="ooc-paste" style="min-height:150px;" placeholder="출력된 내용을 그대로 붙여넣으세요. HTML 형식도 인식합니다."></textarea>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn small" onclick="parseOOC()">⇲ AUTO_FILL</button>
+          <button class="btn small" onclick="document.getElementById('ooc-paste').value='';">⊘ CLEAR</button>
+        </div>
+        <div class="hint" style="margin-top:8px;">인식되지 않은 항목은 각 탭에서 직접 수정할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-A">
       <div class="field">
         <label>PHOTO_DATA</label>
         <label class="file-up" id="file-up-A">
@@ -871,6 +905,201 @@ const CODE_DEFAULTS = {
   BLACK:'폭주 임박. 즉각 STAB 격리 검토.'
 };
 
+/* ========= OOC ========= */
+const OOC_PROMPT = `*[OOC: 이전 RP 중지. 새로운 상황 전개. 본 문서는 ARCH 하모니 부서 내부망에 신규 등록되는 PC와 NPC의 페어 프로파일이다. 현재까지의 서사, 두 사람의 관계, 능력, 심리 상태를 종합 분석하여 아래 양식 그대로 출력한다. 모든 항목은 누락 없이 작성하며, 수치는 캐릭터의 행동·대사·배경을 근거로 합리적으로 산출한다.
+
+· DOSSIER_NO: HD-XX00-XXX (영문 2자 + 숫자 2자 + 영문 3자 식별 코드, 임의 생성)
+· ID_CODE: ARH-등급숫자-이니셜 형식 (예: ARH-S01-J)
+
+[ SUBJECT_A ] / [ SUBJECT_B ] 각각 아래 항목을 작성한다.
+· CODENAME 코드네임:
+· ID_CODE:
+· GRADE 등급: SS / S / A / B / C 중 택1
+· ROLE 역할: 센티넬 / 가이드 중 택1
+· ELEMENT 속성: 무속성 / 불 / 물 / 풀 / 번개 / 바람 / 얼음 중 택1
+
+[ STAT_MATRIX ] (각 0~100 정수)
+· 출력 OUTPUT: ___    (전투 및 능력 발현 강도)
+· 제어 CONTROL: ___    (능력 정밀도 및 통제력)
+· 공명 RESONANCE: ___    (파장 동조·공명 수용력)
+· 감응 PERCEPTION: ___    (감각·감응 예민도)
+· 안정 STABILITY: ___    (정신 안정성·폭주 저항)
+· 회복 RECOVERY: ___    (탈진 후 회복 속도)
+
+[ STATUS_LOG ]
+(현재 상태·특이사항·관찰 메모 3~5줄. 사무적 보고서 어투.)
+
+· SYNC_RATE 싱크로율: __% (0~100)
+· ADDICTION 중독 위험도: __% (0~100)
+· IMPRINT_STATUS 각인 상태: 미확인 / 낮음 / 조짐 감지 / 발현 임박 / 영구 각인 중 택1
+· PROTOCOL_CODE 프로토콜: GREEN / BLUE / YELLOW / ORANGE / RED / BLACK 중 택1
+
+[ CODE_DESCRIPTION ]
+(현재 프로토콜 발령 사유 및 하모니 부서 권고사항 2~3줄)
+
+[ RELATION_NOTE ]
+(두 사람의 현재 관계·페어링 평가·특이 행동 패턴·향후 관찰 포인트 4~6줄. 분석 어투에 미세한 주관 허용.)
+
+출력은 HTML 형식으로 하며 div, span, 인라인 스타일을 사용해
+기록 문서처럼 시각적으로 구성하고,
+전체 내용을 백틱으로 감싼다.]*`;
+
+function copyOOC(){
+  const done = ()=>notify('OOC_COPIED');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(OOC_PROMPT).then(done).catch(fallbackCopy);
+  }else fallbackCopy();
+  function fallbackCopy(){
+    const ta=document.createElement('textarea');
+    ta.value=OOC_PROMPT; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){ notify('COPY_FAILED'); }
+    ta.remove();
+  }
+}
+
+/* HTML 출력도 받도록 태그를 걷어내고 순수 텍스트로 변환 */
+function stripHTML(raw){
+  let s = String(raw).replace(/^\s*`{3,}[a-z]*\s*/i,'').replace(/`{3,}\s*$/,'').replace(/`/g,'');
+  if(!/<[a-z][\s\S]*>/i.test(s)) return s;
+  s = s.replace(/<\s*(br|\/div|\/p|\/li|\/tr|\/h[1-6])\s*\/?>/gi,'\n');
+  s = s.replace(/<\s*\/\s*td\s*>/gi,': ');
+  s = s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'');
+  s = s.replace(/<[^>]+>/g,'');
+  const map={'&nbsp;':' ','&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#39;':"'"};
+  return s.replace(/&nbsp;|&amp;|&lt;|&gt;|&quot;|&#39;/g,m=>map[m]);
+}
+
+const P_SEC = /^[\[\s·•\-]*\s*(SUBJECT[_\s]?A|SUBJECT[_\s]?B|대상\s*A|대상\s*B|A|B|RELATION|관계|공통|PAIR)\s*[\]\s]*$/i;
+const P_KEYS = [
+  [/^(codename|코드네임|이름|명칭|name)$/i,'name'],
+  [/^(id[_\s]?code|아이디|식별코드|코드)$/i,'code'],
+  [/^(grade|등급|랭크)$/i,'grade'],
+  [/^(role|역할|직무|타입)$/i,'role'],
+  [/^(element|속성|원소)$/i,'element'],
+  [/^(status[_\s]?log|상태|상태기록|특이사항|관찰메모|메모|비고)$/i,'note']
+];
+const R_KEYS = [
+  [/^(dossier[_\s]?no|문서번호|문서|기록번호)$/i,'dossier'],
+  [/^(sync[_\s]?rate|싱크로율|싱크율|싱크|동조율)$/i,'sync'],
+  [/^(addiction|중독위험도|중독위험|중독도|중독)$/i,'addict'],
+  [/^(imprint([_\s]?status)?|각인상태|각인)$/i,'imprint'],
+  [/^(protocol([_\s]?code)?|프로토콜|코드등급)$/i,'code'],
+  [/^(code[_\s]?description|발령사유|사유|권고사항|권고|코드설명)$/i,'codeDesc'],
+  [/^(relation([_\s]?note)?|관계기록|관계평가|관계|페어링평가)$/i,'relation']
+];
+const STAT_KEYS = [
+  [/^(출력|output|출력\s*output)$/i,'out'],[/^(제어|control)$/i,'ctl'],
+  [/^(공명|resonance)$/i,'rsn'],[/^(감응|perception|percept)$/i,'pcp'],
+  [/^(안정|stability)$/i,'stb'],[/^(회복|recovery)$/i,'rcv']
+];
+const BLOCK_KEYS = new Set(['note','codeDesc','relation']);
+
+/* "CODENAME 코드네임" 처럼 영문·한글이 섞인 항목명도 인식하도록 후보를 만든다 */
+function keyCands(raw){
+  const s=String(raw).trim();
+  const out=[s, s.replace(/\s+/g,'')];
+  s.split(/[\s/]+/).forEach(tok=>{ if(tok) out.push(tok); });
+  const ko=s.match(/[가-힣]+/g); if(ko) out.push(ko.join(''));
+  const en=s.match(/[A-Za-z_]+/g); if(en) out.push(en.join('_'));
+  return out;
+}
+const matchKey=(table,raw)=>{
+  const cands=keyCands(raw);
+  return table.find(([re])=>cands.some(c=>re.test(c)));
+};
+const GRADES = ['SS','S','A','B','C'];
+const IMPRINTS = ['미확인','낮음','조짐 감지','발현 임박','영구 각인'];
+
+function parseOOC(){
+  const raw = document.getElementById('ooc-paste').value.trim();
+  if(!raw){ notify('NO_INPUT_DATA'); return; }
+  const text = stripHTML(raw).replace(/\r/g,'').replace(/：/g,':').replace(/[*#]/g,'');
+  let sec='R', cur=null, hit=0;
+
+  const setBlock=(c,line)=>{
+    const clean=line.replace(/^[·•\-*\s]+/,'').trim();
+    if(!clean) return;
+    c.buf.push(clean);
+    const val=c.buf.join('\n');
+    if(c.sec==='A'||c.sec==='B') state[c.sec][c.f]=val; else state.R[c.f]=val;
+  };
+
+  for(const line of text.split('\n')){
+    const t=line.trim();
+    if(!t) continue;
+
+    const sm=t.match(P_SEC);
+    if(sm){
+      const v=sm[1].toUpperCase().replace(/[\s_]/g,'');
+      if(/^(SUBJECTA|대상A|A)$/.test(v)) sec='A';
+      else if(/^(SUBJECTB|대상B|B)$/.test(v)) sec='B';
+      else sec='R';
+      cur=null; continue;
+    }
+
+    // [ STATUS_LOG ] 처럼 대괄호만 있는 블록 머리글
+    const hd=t.match(/^\[\s*([^\]]{1,32}?)\s*\]$/);
+    if(hd){
+      const fd=matchKey(R_KEYS.concat(P_KEYS),hd[1]);
+      if(fd && BLOCK_KEYS.has(fd[1])){
+        cur={f:fd[1],sec:(P_KEYS.some(([,n])=>n===fd[1])?sec:'R'),buf:[]};
+      }else cur=null;
+      continue;
+    }
+
+    const kv=t.match(/^[·•\-\s]*([가-힣A-Za-z_ /]{1,32}?)\s*:\s*(.*)$/);
+    if(kv){
+      const key=kv[1].trim(), val=kv[2].trim();
+
+      // 스탯: "출력 OUTPUT: 92" 형태 포함
+      const sk=matchKey(STAT_KEYS,key);
+      if(sk && (sec==='A'||sec==='B')){
+        const n=parseInt(val.replace(/[^0-9]/g,''),10);
+        if(!isNaN(n)){ state[sec].stats[sk[1]]=Math.max(0,Math.min(100,n)); hit++; }
+        cur=null; continue;
+      }
+
+      const table = (sec==='A'||sec==='B') ? P_KEYS.concat(R_KEYS) : R_KEYS.concat(P_KEYS);
+      const fd=matchKey(table,key);
+      if(fd){
+        const f=fd[1];
+        if(BLOCK_KEYS.has(f)){
+          cur={f,sec:(P_KEYS.some(([,n])=>n===f)?sec:'R'),buf:[]};
+          if(val){ setBlock(cur,val); hit++; }
+          continue;
+        }
+        if(!val){ cur=null; continue; }
+        if(sec==='A'||sec==='B'){
+          if(f==='grade'){ const g=GRADES.find(x=>val.toUpperCase().startsWith(x)); if(g){state[sec].grade=g;hit++;} }
+          else if(f==='role'){ state[sec].role = /가이드|guide/i.test(val)?'가이드':'센티넬'; hit++; }
+          else if(f==='element'){
+            const el=ELEMENTS.find(e=>val.includes(e.n)||val.toUpperCase().includes(e.en));
+            if(el){ state[sec].element=el.k; hit++; }
+          }
+          else { state[sec][f]=val; hit++; }
+        }else{
+          if(f==='sync'||f==='addict'){
+            const n=parseInt(val.replace(/[^0-9]/g,''),10);
+            if(!isNaN(n)){ state.R[f]=Math.max(0,Math.min(100,n)); hit++; }
+          }
+          else if(f==='imprint'){ const m=IMPRINTS.find(x=>val.includes(x)); state.R.imprint=m||state.R.imprint; hit++; }
+          else if(f==='code'){ const m=val.toUpperCase().match(/GREEN|BLUE|YELLOW|ORANGE|RED|BLACK/); if(m){state.R.code=m[0];hit++;} }
+          else { state.R[f]=val; hit++; }
+        }
+        cur=null; continue;
+      }
+    }
+
+    if(cur){ setBlock(cur,t); hit++; }
+  }
+
+  if(!hit){ notify('NO_DATA_RECOGNIZED'); return; }
+  applyState();
+  save();
+  notify('AUTOFILL_COMPLETE // '+hit+'_FIELDS');
+}
+
 function defaultState(){
   return {
     A:{name:'',code:'',grade:'A',role:'센티넬',element:'fire',note:'',photo:null,
@@ -1007,6 +1236,9 @@ function init(){
       document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
     };
   });
+
+  // ooc prompt text
+  document.getElementById('ooc-text').textContent = OOC_PROMPT;
 
   // photo interaction (drag + zoom)
   ['A','B'].forEach(t=>setupPhotoInteraction(t));
@@ -1471,6 +1703,7 @@ function randomize(){
 function resetAll(){
   if(!confirm('전체 데이터를 초기화할까요?')) return;
   try{localStorage.removeItem('arch_resonance_nexus');}catch(e){}
+  const pb=document.getElementById('ooc-paste'); if(pb) pb.value='';
   state = defaultState();
   state.R.dossier = generateDossier();
   document.getElementById('dossier-no').innerText = state.R.dossier;
