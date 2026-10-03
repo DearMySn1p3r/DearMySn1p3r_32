@@ -556,6 +556,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
     <div class="acts">
       <button class="btn pri" id="saveBtn" onclick="downloadImage()">도시에 이미지 저장</button>
+      <button class="btn sm" style="margin-top:8px" onclick="swapSubjects()">A ⇄ B 위치 바꾸기</button>
       <div class="btns c2"><button class="btn sm" onclick="randomize()">수치 랜덤</button><button class="btn sm danger" onclick="resetAll()">전체 초기화</button></div>
     </div>
   </aside>
@@ -1306,6 +1307,14 @@ replaceSubjectRefs=function(){
   state.R.codeDesc=apply(state.R.codeDesc);state.R.relation=apply(state.R.relation);
 };
 
+/* ═════ SWAP · A ⇄ B 위치 바꾸기 ═════ */
+function swapSubjects(){
+  const tmp=state.A;state.A=state.B;state.B=tmp;
+  const a=PH.A,b=PH.B;['img','s','x','y'].forEach(k=>{const v=a[k];a[k]=b[k];b[k]=v;});
+  ['A','B'].forEach(t=>{PH[t].draw();syncZoom(t);paintUpload(t);});
+  applyState();saveNow();
+  toast('SUBJECT A ⇄ B SWAPPED');logEv('SWAP','두 캐릭터 위치 교체');
+}
 </script>
 </body>
 </html>
